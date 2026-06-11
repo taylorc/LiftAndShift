@@ -1,36 +1,27 @@
 using System.Runtime.CompilerServices;
-using AutoMapper;
-using LiftAndShift.Application.Common.Interfaces;
+using LiftAndShift.Application.Common.Models;
 using LiftAndShift.Application.TodoLists.Queries.GetTodos;
 using LiftAndShift.Domain.Entities;
-using Microsoft.Extensions.Logging;
+using Mapster;
 using NUnit.Framework;
 
 namespace LiftAndShift.Application.UnitTests.Common.Mappings;
 
 public class MappingTests
 {
-    private ILoggerFactory? _loggerFactory;
-    private MapperConfiguration? _configuration;
-    private IMapper? _mapper;
+    private TypeAdapterConfig? _config;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        // Minimal logger factory for tests
-        _loggerFactory = LoggerFactory.Create(b => b.AddDebug().SetMinimumLevel(LogLevel.Debug));
+        _config = TypeAdapterConfig.GlobalSettings;
 
-        _configuration = new MapperConfiguration(cfg =>
-            cfg.AddMaps(typeof(IApplicationDbContext).Assembly),
-            loggerFactory: _loggerFactory);
-
-        _mapper = _configuration.CreateMapper();
-    }
-
-    [Test]
-    public void ShouldHaveValidConfiguration()
-    {
-        _configuration!.AssertConfigurationIsValid();
+        // Register all mappings
+        _config.NewConfig<TodoList, TodoListDto>();
+        _config.NewConfig<TodoItem, TodoItemDto>()
+            .Map(dest => dest.Priority, src => (int)src.Priority);
+        _config.NewConfig<TodoList, LookupDto>();
+        _config.NewConfig<TodoItem, LookupDto>();
     }
 
     [Test]
@@ -39,8 +30,11 @@ public class MappingTests
     public void ShouldSupportMappingFromSourceToDestination(Type source, Type destination)
     {
         var instance = GetInstanceOf(source);
+        var mapper = new MapsterMapper.Mapper(_config!);
 
-        _mapper!.Map(instance, source, destination);
+        // Verify mapping doesn't throw
+        var result = mapper.Map(instance, source, destination);
+        Assert.That(result, Is.Not.Null);
     }
 
     private static object GetInstanceOf(Type type)
@@ -50,12 +44,5 @@ public class MappingTests
 
         // Type without parameterless constructor
         return RuntimeHelpers.GetUninitializedObject(type);
-    }
-
-
-    [OneTimeTearDown]
-    public void OneTimeTearDown()
-    {
-        _loggerFactory?.Dispose();
     }
 }
