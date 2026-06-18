@@ -1,5 +1,6 @@
 using LiftAndShift.Application.Common.Interfaces;
 using LiftAndShift.Application.Common.Models;
+using LiftAndShift.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -76,6 +77,44 @@ public class IdentityService : IIdentityService
     {
         var result = await _userManager.DeleteAsync(user);
 
+        return result.ToApplicationResult();
+    }
+
+    public async Task<UserOnboardingDto?> GetUserOnboardingAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return null;
+
+        return new UserOnboardingDto
+        {
+            IsOnboarded = user.IsOnboarded,
+            PreferredUnit = user.PreferredUnit.Name,
+            BodyWeight = user.BodyWeight,
+            AlternatingLift = user.AlternatingLift.Name,
+            SquatStartingWeight = user.SquatStartingWeight,
+            BenchPressStartingWeight = user.BenchPressStartingWeight,
+            OverheadPressStartingWeight = user.OverheadPressStartingWeight,
+            DeadliftStartingWeight = user.DeadliftStartingWeight,
+            AlternatingLiftStartingWeight = user.AlternatingLiftStartingWeight
+        };
+    }
+
+    public async Task<Result> SaveUserOnboardingAsync(string userId, UserOnboardingDto dto)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return Result.Failure(["User not found."]);
+
+        user.IsOnboarded = true;
+        user.PreferredUnit = WeightUnit.FromName(dto.PreferredUnit);
+        user.BodyWeight = dto.BodyWeight;
+        user.AlternatingLift = AlternatingLiftType.FromName(dto.AlternatingLift);
+        user.SquatStartingWeight = dto.SquatStartingWeight;
+        user.BenchPressStartingWeight = dto.BenchPressStartingWeight;
+        user.OverheadPressStartingWeight = dto.OverheadPressStartingWeight;
+        user.DeadliftStartingWeight = dto.DeadliftStartingWeight;
+        user.AlternatingLiftStartingWeight = dto.AlternatingLiftStartingWeight;
+
+        var result = await _userManager.UpdateAsync(user);
         return result.ToApplicationResult();
     }
 }

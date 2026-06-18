@@ -7,8 +7,10 @@ builder.AddAzureContainerAppEnvironment("aca-env");
 var databaseServer = builder
     .AddAzurePostgresFlexibleServer(Services.DatabaseServer)
     .WithPasswordAuthentication()
-    .RunAsContainer(container => 
-        container.WithLifetime(ContainerLifetime.Persistent))
+    .RunAsContainer(container =>
+        container
+            .WithLifetime(ContainerLifetime.Persistent)
+            .WithPgAdmin())
     .AddDatabase(Services.Database);
 
 var web = builder.AddProject<Projects.Web>(Services.WebApi)

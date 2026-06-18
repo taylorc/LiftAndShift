@@ -5,6 +5,9 @@ import { Home } from "./components/Home";
 import { LoginPage } from "./components/api-authorization/LoginPage";
 import { RegisterPage } from "./components/api-authorization/RegisterPage";
 import { ProtectedRoute } from "./components/api-authorization/ProtectedRoute";
+import { AuthenticatedRoute } from "./components/api-authorization/AuthenticatedRoute";
+import { Onboarding } from "./components/Onboarding";
+import { UserManagement } from "./components/UserManagement";
 
 const AppRoutes = [
   {
@@ -30,6 +33,14 @@ const AppRoutes = [
   {
     path: '/register',
     element: <RegisterPage />
+  },
+  {
+    path: '/onboarding',
+    element: <AuthenticatedRoute><Onboarding /></AuthenticatedRoute>
+  },
+  {
+    path: '/usermanagement',
+    element: <AuthenticatedRoute><UserManagement /></AuthenticatedRoute>
   }
 ];
 

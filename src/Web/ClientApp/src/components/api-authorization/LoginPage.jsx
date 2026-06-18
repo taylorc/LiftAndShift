@@ -6,7 +6,7 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [invalid, setInvalid] = useState(false);
-  const { login } = useAuth();
+    const { login, refreshOnboardingStatus, isOnboarded } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,8 +14,15 @@ export function LoginPage() {
     e.preventDefault();
     try {
       await login(email, password);
-      const returnUrl = location.state?.returnUrl || '/';
-      navigate(returnUrl, { replace: true });
+        const returnUrl = location.state?.returnUrl || '/';
+
+        await refreshOnboardingStatus();
+        if (!isOnboarded) {
+            navigate('/onboarding', { replace: true });
+        } else {
+            navigate(returnUrl, { replace: true });
+        }
+      
     } catch {
       setInvalid(true);
     }

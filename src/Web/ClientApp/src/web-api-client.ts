@@ -7,6 +7,127 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
+export class OnboardingClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * Get onboarding data
+     * @return OK
+     */
+    getOnboarding(): Promise<UserOnboardingDto> {
+        let url_ = this.baseUrl + "/api/Onboarding";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetOnboarding(_response);
+        });
+    }
+
+    protected processGetOnboarding(response: Response): Promise<UserOnboardingDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserOnboardingDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<UserOnboardingDto>(null as any);
+    }
+
+    /**
+     * Save onboarding data
+     * @return No Content
+     */
+    saveOnboarding(body: SaveUserOnboardingCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Onboarding";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSaveOnboarding(_response);
+        });
+    }
+
+    protected processSaveOnboarding(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData400)) {
+                result400 = [] as any;
+                for (let item of resultData400)
+                    result400!.push(item);
+            }
+            else {
+                result400 = null as any;
+            }
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export class TodoItemsClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -1852,6 +1973,82 @@ export interface IResetPasswordRequest {
     [key: string]: any;
 }
 
+export class SaveUserOnboardingCommand implements ISaveUserOnboardingCommand {
+    preferredUnit?: string;
+    bodyWeight?: number;
+    alternatingLift?: string;
+    squatStartingWeight?: number;
+    benchPressStartingWeight?: number;
+    overheadPressStartingWeight?: number;
+    deadliftStartingWeight?: number;
+    alternatingLiftStartingWeight?: number;
+
+    [key: string]: any;
+
+    constructor(data?: ISaveUserOnboardingCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.preferredUnit = _data["preferredUnit"];
+            this.bodyWeight = _data["bodyWeight"];
+            this.alternatingLift = _data["alternatingLift"];
+            this.squatStartingWeight = _data["squatStartingWeight"];
+            this.benchPressStartingWeight = _data["benchPressStartingWeight"];
+            this.overheadPressStartingWeight = _data["overheadPressStartingWeight"];
+            this.deadliftStartingWeight = _data["deadliftStartingWeight"];
+            this.alternatingLiftStartingWeight = _data["alternatingLiftStartingWeight"];
+        }
+    }
+
+    static fromJS(data: any): SaveUserOnboardingCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new SaveUserOnboardingCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["preferredUnit"] = this.preferredUnit;
+        data["bodyWeight"] = this.bodyWeight;
+        data["alternatingLift"] = this.alternatingLift;
+        data["squatStartingWeight"] = this.squatStartingWeight;
+        data["benchPressStartingWeight"] = this.benchPressStartingWeight;
+        data["overheadPressStartingWeight"] = this.overheadPressStartingWeight;
+        data["deadliftStartingWeight"] = this.deadliftStartingWeight;
+        data["alternatingLiftStartingWeight"] = this.alternatingLiftStartingWeight;
+        return data;
+    }
+}
+
+export interface ISaveUserOnboardingCommand {
+    preferredUnit?: string;
+    bodyWeight?: number;
+    alternatingLift?: string;
+    squatStartingWeight?: number;
+    benchPressStartingWeight?: number;
+    overheadPressStartingWeight?: number;
+    deadliftStartingWeight?: number;
+    alternatingLiftStartingWeight?: number;
+
+    [key: string]: any;
+}
+
 export class TodoItemDto implements ITodoItemDto {
     id?: number;
     listId?: number;
@@ -2372,6 +2569,86 @@ export interface IUpdateTodoListCommand {
     id?: number;
     title?: string | undefined;
     colour?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class UserOnboardingDto implements IUserOnboardingDto {
+    isOnboarded?: boolean;
+    preferredUnit?: string;
+    bodyWeight?: number | undefined;
+    alternatingLift?: string;
+    squatStartingWeight?: number | undefined;
+    benchPressStartingWeight?: number | undefined;
+    overheadPressStartingWeight?: number | undefined;
+    deadliftStartingWeight?: number | undefined;
+    alternatingLiftStartingWeight?: number | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IUserOnboardingDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.isOnboarded = _data["isOnboarded"];
+            this.preferredUnit = _data["preferredUnit"];
+            this.bodyWeight = _data["bodyWeight"];
+            this.alternatingLift = _data["alternatingLift"];
+            this.squatStartingWeight = _data["squatStartingWeight"];
+            this.benchPressStartingWeight = _data["benchPressStartingWeight"];
+            this.overheadPressStartingWeight = _data["overheadPressStartingWeight"];
+            this.deadliftStartingWeight = _data["deadliftStartingWeight"];
+            this.alternatingLiftStartingWeight = _data["alternatingLiftStartingWeight"];
+        }
+    }
+
+    static fromJS(data: any): UserOnboardingDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserOnboardingDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["isOnboarded"] = this.isOnboarded;
+        data["preferredUnit"] = this.preferredUnit;
+        data["bodyWeight"] = this.bodyWeight;
+        data["alternatingLift"] = this.alternatingLift;
+        data["squatStartingWeight"] = this.squatStartingWeight;
+        data["benchPressStartingWeight"] = this.benchPressStartingWeight;
+        data["overheadPressStartingWeight"] = this.overheadPressStartingWeight;
+        data["deadliftStartingWeight"] = this.deadliftStartingWeight;
+        data["alternatingLiftStartingWeight"] = this.alternatingLiftStartingWeight;
+        return data;
+    }
+}
+
+export interface IUserOnboardingDto {
+    isOnboarded?: boolean;
+    preferredUnit?: string;
+    bodyWeight?: number | undefined;
+    alternatingLift?: string;
+    squatStartingWeight?: number | undefined;
+    benchPressStartingWeight?: number | undefined;
+    overheadPressStartingWeight?: number | undefined;
+    deadliftStartingWeight?: number | undefined;
+    alternatingLiftStartingWeight?: number | undefined;
 
     [key: string]: any;
 }

@@ -12,8 +12,18 @@ function AuthLinks() {
     navigate('/login');
   };
 
+  const navigateToUserManagement = (e)=>{
+    e.preventDefault();
+    navigate('/UserManagement')
+  };
+
+
   if (isAuthenticated) {
-    return <li><a href="#" onClick={handleLogout}>Log out</a></li>;
+    return (
+      <>
+      <li><a href="#" onClick={handleLogout}>Log out</a></li>
+      <li><a href="#" onClick={navigateToUserManagement}>Log out</a></li>
+    </>);
   }
   return (
     <>

@@ -20,7 +20,8 @@
     * **Acceptance Criteria:**
         * The application must allow the user to select either lbs or kgs as their preferred unit of measurement.
         * The system must capture and store the user's current body weight.
-        * The onboarding flow must collect the initial "Starting Working Weights" for all 5 primary lifts: Squat, Bench Press, Overhead Press, Deadlift, and Power Clean.
+        * The onboarding flow must collect the choice between Power Cleans and Pendlay Rows
+        * The onboarding flow must collect the initial "Starting Working Weights" for all 5 primary lifts: Squat, Bench Press, Overhead Press, Deadlift, and Power Clean/Pendlay Rows.
 
 ### User Story 3: Program Phase Selection
 * **As a** novice lifter configuring my program,
@@ -29,7 +30,7 @@
     * **Acceptance Criteria:**
         * The application must allow the user to select their current tier of the novice program.
         * Option 1 must configure Phase 1, which utilizes the Deadlift only.
-        * Option 2 must configure Phase 2, which features an alternating Deadlift and Power Clean schedule.
+        * Option 2 must configure Phase 2, which features an alternating Deadlift and Power Clean/Pendlay Rows schedule.
 
 ---
 
