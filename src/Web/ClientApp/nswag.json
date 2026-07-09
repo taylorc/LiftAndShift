@@ -69,7 +69,7 @@
       "includeHttpContext": false,
 "serviceHost": null,
       "serviceSchemes": null,
-      "output": "src/web-api-client.ts",
+      "output": "lib/web-api-client.ts",
       "newLineBehavior": "Auto"
     }
   }
