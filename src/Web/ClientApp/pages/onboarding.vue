@@ -1,5 +1,8 @@
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
+import { MiddlewareList, MiddlewareName } from '~/lib/middlewareList';
+
+const list = new MiddlewareList();
+definePageMeta({ middleware: list.getStringValueForEmum(MiddlewareName.Auth)})
 </script>
 
 <template>

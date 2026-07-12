@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Plus, Settings, MoreHorizontal } from '@lucide/vue'
+import { MiddlewareList, MiddlewareName } from '~/lib/middlewareList'
 import {
   TodoListDto,
   TodoItemDto,
@@ -12,7 +13,8 @@ import {
   ColourDto,
 } from '~/lib/web-api-client'
 
-definePageMeta({ middleware: 'protected' })
+const list = new MiddlewareList();
+definePageMeta({ middleware: list.getStringValueForEmum(MiddlewareName.Protected) })
 
 const listsClient = useTodoListsClient()
 const itemsClient = useTodoItemsClient()
@@ -29,7 +31,7 @@ const newListColour = ref('')
 const newListError = ref('')
 
 // ── List options dialog state ──────────────────────────────────────────────────
-const listOptionsEditor = reactive<{ id?: number; title?: string; colour?: string }>({})
+const listOptionsEditor = ref<{ id?: number; title?: string; colour?: string }>({})
 
 // ── Item state ────────────────────────────────────────────────────────────────
 const selectedItem = ref<TodoItemDto | null>(null)
@@ -37,7 +39,7 @@ const editingItem = ref<TodoItemDto | null>(null)
 const editValue = ref('')
 const newItemTitle = ref('')
 const addingItem = ref(false)
-const itemDetailsEditor = reactive<{ listId?: number; priority?: number; note?: string }>({})
+const itemDetailsEditor = ref<{ listId?: number; priority?: number; note?: string }>({})
 
 // ── Mutable flags (cancel detection on blur) ──────────────────────────────────
 const originalTitle = ref('')
@@ -123,13 +125,13 @@ async function updateListOptions() {
   if (!selectedList.value) return
   try {
     await listsClient.updateTodoList(selectedList.value.id!, new UpdateTodoListCommand({
-      id: listOptionsEditor.id,
-      title: listOptionsEditor.title,
-      colour: listOptionsEditor.colour,
+      id: listOptionsEditor.value.id,
+      title: listOptionsEditor.value.title,
+      colour: listOptionsEditor.value.colour,
     }))
     lists.value = lists.value!.map((l: TodoListDto) =>
       l.id === selectedList.value!.id
-        ? new TodoListDto({ ...l, title: listOptionsEditor.title, colour: listOptionsEditor.colour })
+        ? new TodoListDto({ ...l, title: listOptionsEditor.value.title, colour: listOptionsEditor.value.colour })
         : l,
     )
     closeListOptionsDialog()
@@ -171,21 +173,21 @@ function closeItemDetailsDialog() {
 
 async function updateItemDetails() {
   if (!selectedItem.value) return
-  const isMoving = selectedItem.value.listId !== itemDetailsEditor.listId
+  const isMoving = selectedItem.value.listId !== itemDetailsEditor.value.listId
   try {
     await itemsClient.updateTodoItemDetail(selectedItem.value.id!, new UpdateTodoItemDetailCommand({
       id: selectedItem.value.id,
-      listId: itemDetailsEditor.listId,
-      priority: itemDetailsEditor.priority,
-      note: itemDetailsEditor.note,
+      listId: itemDetailsEditor.value.listId,
+      priority: itemDetailsEditor.value.priority,
+      note: itemDetailsEditor.value.note,
     }))
     lists.value = lists.value!.map((l: TodoListDto) => {
       if (l.id === selectedItem.value!.listId && isMoving)
         return new TodoListDto({ ...l, items: l.items?.filter((i: TodoItemDto) => i.id !== selectedItem.value!.id) })
-      if (l.id === itemDetailsEditor.listId && isMoving)
+      if (l.id === itemDetailsEditor.value.listId && isMoving)
         return new TodoListDto({ ...l, items: [...(l.items ?? []), new TodoItemDto({ ...selectedItem.value!, ...itemDetailsEditor })] })
       if (l.id === selectedItem.value!.listId)
-        return new TodoListDto({ ...l, items: l.items?.map((i: TodoItemDto) => i.id === selectedItem.value!.id ? new TodoItemDto({ ...i, priority: itemDetailsEditor.priority, note: itemDetailsEditor.note }) : i) })
+        return new TodoListDto({ ...l, items: l.items?.map((i: TodoItemDto) => i.id === selectedItem.value!.id ? new TodoItemDto({ ...i, priority: itemDetailsEditor.value.priority, note: itemDetailsEditor.value.note }) : i) })
       return l
     })
     closeItemDetailsDialog()

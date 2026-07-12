@@ -1,5 +1,10 @@
 <script setup lang="ts">
-definePageMeta({ middleware: 'protected' })
+import { MiddlewareList, MiddlewareName } from '~/lib/middlewareList';
+
+
+const list = new MiddlewareList();
+
+definePageMeta({ middleware: list.getStringValueForEmum(MiddlewareName.Protected) })
 
 const client = useWeatherForecastsClient()
 

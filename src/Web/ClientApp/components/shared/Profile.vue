@@ -10,7 +10,7 @@ const error = ref('')
 const isSubmitting = ref(false)
 const isBeginner = ref(false)
 
-const form = reactive({
+const form = ref({
   preferredUnit: 'Lbs',
   bodyWeight: '',
   alternatingLift: 'PowerClean',
@@ -41,8 +41,8 @@ onMounted(async () => {
   } catch { /* ignore */ }
 })
 
-const unitLabel = computed(() => form.preferredUnit === 'Lbs' ? 'lbs' : 'kg')
-const altLiftLabel = computed(() => form.alternatingLift === 'PowerClean' ? 'Power Clean' : 'Pendlay Row')
+const unitLabel = computed(() => form.value.preferredUnit === 'Lbs' ? 'lbs' : 'kg')
+const altLiftLabel = computed(() => form.value.alternatingLift === 'PowerClean' ? 'Power Clean' : 'Pendlay Row')
 
 async function handleSubmit() {
   error.value = ''
@@ -50,14 +50,14 @@ async function handleSubmit() {
   const client = useOnboardingClient()
   try {
     await client.saveOnboarding(new SaveUserOnboardingCommand({
-      preferredUnit: form.preferredUnit,
-      bodyWeight: parseFloat(form.bodyWeight),
-      alternatingLift: form.alternatingLift,
-      squatStartingWeight: parseFloat(form.squatStartingWeight),
-      benchPressStartingWeight: parseFloat(form.benchPressStartingWeight),
-      overheadPressStartingWeight: parseFloat(form.overheadPressStartingWeight),
-      deadliftStartingWeight: parseFloat(form.deadliftStartingWeight),
-      alternatingLiftStartingWeight: parseFloat(form.alternatingLiftStartingWeight),
+      preferredUnit: form.value.preferredUnit,
+      bodyWeight: parseFloat(form.value.bodyWeight),
+      alternatingLift: form.value.alternatingLift,
+      squatStartingWeight: parseFloat(form.value.squatStartingWeight),
+      benchPressStartingWeight: parseFloat(form.value.benchPressStartingWeight),
+      overheadPressStartingWeight: parseFloat(form.value.overheadPressStartingWeight),
+      deadliftStartingWeight: parseFloat(form.value.deadliftStartingWeight),
+      alternatingLiftStartingWeight: parseFloat(form.value.alternatingLiftStartingWeight),
     }))
     await auth.fetchOnboardingStatus()
     router.push('/')
