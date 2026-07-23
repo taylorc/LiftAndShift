@@ -22,7 +22,7 @@
 
       <!-- Visual bar diagram -->
       <div style="display: flex; align-items: center; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap;">
-        <div v-for="(count, size) in platesFromLargest" :key="size">
+        <div v-for="[size, count] in platesFromSmallest" :key="size">
           <div v-for="n in count" :key="n" :style="plateStyle(Number(size))" class="plate-visual">
             {{ size }}
           </div>
@@ -31,7 +31,7 @@
         <div style="background: var(--pico-muted-border-color); width: 60px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;">
           BAR
         </div>
-        <div v-for="(count, size) in platesFromLargest" :key="'r' + size">
+        <div v-for="[size, count] in platesFromLargest" :key="'r' + size">
           <div v-for="n in count" :key="n" :style="plateStyle(Number(size))" class="plate-visual">
             {{ size }}
           </div>
@@ -62,10 +62,13 @@ const targetKg = ref(100)
 const barKg = ref(20)
 
 const platesFromLargest = computed(() => {
-  if (!store.plateResult) return {}
-  return Object.fromEntries(
-    Object.entries(store.plateResult.platesPerSide).sort(([a], [b]) => Number(b) - Number(a))
-  )
+  if (!store.plateResult) return []
+  return Object.entries(store.plateResult.platesPerSide ?? {}).sort(([a], [b]) => Number(b) - Number(a))
+})
+
+const platesFromSmallest = computed(() => {
+  if (!store.plateResult) return []
+  return Object.entries(store.plateResult.platesPerSide ?? {}).sort(([a], [b]) => Number(a) - Number(b))
 })
 
 function plateStyle(size: number) {
