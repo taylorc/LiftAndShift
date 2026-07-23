@@ -10,6 +10,14 @@ async function handleLogout() {
 
 <template>
   <template v-if="auth.isAuthenticated">
+    <li><NuxtLink to="/dashboard">Dashboard</NuxtLink></li>
+    <li><NuxtLink to="/log-workout">Log Workout</NuxtLink></li>
+    <li><NuxtLink to="/history">History</NuxtLink></li>
+    <li><NuxtLink to="/progress">Progress</NuxtLink></li>
+    <li><NuxtLink to="/programme">Programme</NuxtLink></li>
+    <li><NuxtLink to="/calculators">Calculators</NuxtLink></li>
+    <li><NuxtLink to="/exercise-library">Exercises</NuxtLink></li>
+    <li><NuxtLink to="/settings">Settings</NuxtLink></li>
     <li><a href="#" @click.prevent="handleLogout">Log out</a></li>
     <li><NuxtLink to="/usermanagement">Account</NuxtLink></li>
   </template>

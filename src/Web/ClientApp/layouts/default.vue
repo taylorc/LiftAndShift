@@ -2,13 +2,7 @@
   <header>
     <nav>
       <ul>
-        <li><NuxtLink to="/">Lift &amp; Shift</NuxtLink></li>
-      </ul>
-      <ul>
-        <li><NuxtLink to="/">Home</NuxtLink></li>
-        <li><NuxtLink to="/counter">Counter</NuxtLink></li>
-        <li><NuxtLink to="/weather">Weather</NuxtLink></li>
-        <li><NuxtLink to="/todo">Tasks</NuxtLink></li>
+        <li><NuxtLink to="/"><strong>Lift &amp; Shift</strong></NuxtLink></li>
       </ul>
       <ul>
         <NavMenu />
@@ -17,7 +11,5 @@
       </ul>
     </nav>
   </header>
-  <main>
-    <slot />
-  </main>
+  <slot />
 </template>

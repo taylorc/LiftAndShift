@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { SaveUserOnboardingCommand } from '~/lib/web-api-client'
 
+
+
 const props = defineProps<{ heading: string; subTitle: string }>()
 
 const auth = useAuthStore()
@@ -21,13 +23,15 @@ const form = ref({
   alternatingLiftStartingWeight: '',
 })
 
+const isLoading = ref(true);
+
 onMounted(async () => {
   const client = useOnboardingClient()
   try {
     const data = await client.getOnboarding()
     if (data.isOnboarded) {
-      isBeginner.value = true
-      Object.assign(form, {
+      isBeginner.value = true     
+      form.value = {
         preferredUnit: data.preferredUnit ?? 'Lbs',
         bodyWeight: data.bodyWeight?.toString() ?? '',
         alternatingLift: data.alternatingLift ?? 'PowerClean',
@@ -35,8 +39,9 @@ onMounted(async () => {
         benchPressStartingWeight: data.benchPressStartingWeight?.toString() ?? '',
         overheadPressStartingWeight: data.overheadPressStartingWeight?.toString() ?? '',
         deadliftStartingWeight: data.deadliftStartingWeight?.toString() ?? '',
-        alternatingLiftStartingWeight: data.alternatingLiftStartingWeight?.toString() ?? '',
-      })
+        alternatingLiftStartingWeight: data.alternatingLiftStartingWeight?.toString() ?? ''
+      }
+
     }
   } catch { /* ignore */ }
 })
@@ -70,6 +75,7 @@ async function handleSubmit() {
 </script>
 
 <template>
+  
   <article>
     <h2>{{ heading }}</h2>
     <p>{{ subTitle }}</p>
