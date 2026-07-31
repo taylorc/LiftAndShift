@@ -12,11 +12,15 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "^4.0.0-alpha.7",
+    "@nuxt/test-utils": "^3.23.0",
     "@rolldown/binding-win32-x64-msvc": "^1.1.1",
     "@types/node": "^24.0.0",
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^20.11.1",
     "nswag": "latest",
     "sass": "^1.98.0",
-    "typescript": "~5.9.0"
+    "typescript": "~5.9.0",
+    "vitest": "^3.2.7"
   },
   "scripts": {
     "prestart": "npm run generate-api",
@@ -24,6 +28,8 @@
     "prebuild": "npm run generate-api",
     "build": "nuxt build",
     "preview": "nuxt preview",
-    "generate-api": "nswag run /runtime:Net100"
+    "generate-api": "nswag run /runtime:Net100",
+    "test": "vitest run",
+    "test:watch": "vitest"
   }
 }

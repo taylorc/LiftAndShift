@@ -111,7 +111,7 @@ async function adopt(templateId: string) {
 }
 
 function startSession() {
-  router.push('/log-workout')
+  router.push('/log-session')
 }
 
 function formatDate(dateStr: string) {

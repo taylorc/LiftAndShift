@@ -6,12 +6,8 @@ export default defineNuxtPlugin(async () => {
     const usersClient = useUsersClient()
     await usersClient.infoGET()
     auth.isAuthenticated = true
-    const onboardingClient = useOnboardingClient()
-    const data = await onboardingClient.getOnboarding()
-    auth.isOnboarded = data.isOnboarded ?? false
   } catch {
     auth.isAuthenticated = false
-    auth.isOnboarded = false
   } finally {
     auth.isLoading = false
   }

@@ -10,11 +10,9 @@ const invalid = ref(false)
 async function handleSubmit() {
   try {
     await auth.login(email.value, password.value)
-    if (!auth.isOnboarded) {
-      router.replace('/onboarding')
-    } else {
-      router.replace((route.query.returnUrl as string) || '/')
-    }
+
+      router.replace((route.query.returnUrl as string) || '/dashboard')
+    
   } catch {
     invalid.value = true
   }

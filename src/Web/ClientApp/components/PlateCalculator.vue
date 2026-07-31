@@ -23,7 +23,7 @@
       <!-- Visual bar diagram -->
       <div style="display: flex; align-items: center; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap;">
         <div v-for="[size, count] in platesFromSmallest" :key="size">
-          <div v-for="n in count" :key="n" :style="plateStyle(Number(size))" class="plate-visual">
+          <div v-for="n in count" :key="n" :style="plateStyle(Number(size))" class="plate-visual" id="leftPlates">
             {{ size }}
           </div>
         </div>
@@ -32,7 +32,7 @@
           BAR
         </div>
         <div v-for="[size, count] in platesFromLargest" :key="'r' + size">
-          <div v-for="n in count" :key="n" :style="plateStyle(Number(size))" class="plate-visual">
+          <div v-for="n in count" :key="n" :style="plateStyle(Number(size))" class="plate-visual" id="rightPlates">
             {{ size }}
           </div>
         </div>
