@@ -26,6 +26,7 @@ export const useAuthStore = defineStore('auth', {
       const client = useUsersClient()
       if(!validatedEmail(email))
         throw new Error("The email provided is invalid. Please try again");
+      
         await client.login(true, undefined, new LoginRequest({ email, password }))
 
 

@@ -2,7 +2,7 @@ namespace LiftAndShift.Web.AcceptanceTests;
 
 public static class AuthSteps
 {
-    public const string AdministratorEmail = "administrator@localhost";
+    public const string AdministratorEmail = "administrator@localhost.com";
     public const string AdministratorPassword = "Administrator1!";
 
     public static async Task<IPage> LoginAsAdministrator(IBrowserContext context)
@@ -19,4 +19,5 @@ public static class AuthSteps
 
         return page;
     }
+
 }

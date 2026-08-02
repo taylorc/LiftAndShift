@@ -3,8 +3,8 @@ definePageMeta({ middleware: 'auth' })
 </script>
 
 <template>
-  <SharedProfile
+  <!-- <SharedProfile
     heading="Update Your Profile"
     sub-title="Modify your starting weights and preferences to restart your program."
-  />
+  /> -->
 </template>

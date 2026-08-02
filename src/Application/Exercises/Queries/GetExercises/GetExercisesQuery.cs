@@ -38,7 +38,7 @@ public class GetExercisesQueryHandler : IRequestHandler<GetExercisesQuery, List<
     public async Task<List<ExerciseDto>> Handle(GetExercisesQuery request, CancellationToken cancellationToken)
     {
         var query = _context.Exercises
-            .Where(e => e.IsActive && (!e.IsCustom || e.CreatedByUserId == _currentUser.Id));
+            .Where(e => e.IsActive && e.CreatedByUserId == _currentUser.Id);
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {

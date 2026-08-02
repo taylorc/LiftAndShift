@@ -14,7 +14,7 @@ public class Exercise : BaseAuditableEntity
 
     public MovementPattern MovementPattern { get; set; }
 
-    public bool IsCustom { get; set; }
+    public bool IsCustom { get; set; } = false;
 
     public string? CreatedByUserId { get; set; }
 
