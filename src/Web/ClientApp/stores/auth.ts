@@ -24,12 +24,19 @@ export const useAuthStore = defineStore('auth', {
 
     async login(email: string, password: string) {
       const client = useUsersClient()
-      await client.login(true, undefined, new LoginRequest({ email, password }))
+      if(!validatedEmail(email))
+        throw new Error("The email provided is invalid. Please try again");
+        await client.login(true, undefined, new LoginRequest({ email, password }))
+
+
       this.isAuthenticated = true
     },
 
     async register(email: string, password: string) {
       const client = useUsersClient()
+      if(!validatedEmail(email))
+        throw new Error("The email provided is invalid. Please try again");
+
       await client.register(new RegisterRequest({ email, password }))
     },
 
@@ -41,3 +48,10 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 })
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function validatedEmail(email: string) {
+  return EMAIL_PATTERN.test(email)
+}
+
