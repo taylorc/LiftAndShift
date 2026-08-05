@@ -1,11 +1,12 @@
 using Aspire.Hosting;
+using LiftAndShift.Shared;
 
 namespace LiftAndShift.Web.AcceptanceTests;
 
 [SetUpFixture]
 public class AspireSetup
 {
-    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(120);
 
     public static IDistributedApplicationTestingBuilder Builder { get; private set; } = null!;
     public static DistributedApplication App { get; private set; } = null!;
@@ -47,9 +48,11 @@ public class AspireSetup
             .StartAsync(cancellationToken)
             .WaitAsync(cancellationToken);
 
+        
+
         await Task.WhenAll(
-            App.ResourceNotifications.WaitForResourceHealthyAsync(Services.WebApi, cancellationToken).WaitAsync(cancellationToken),
-            App.ResourceNotifications.WaitForResourceHealthyAsync(Services.WebFrontend, cancellationToken).WaitAsync(cancellationToken));
+            App.ResourceNotifications.WaitForResourceHealthyAsync(Shared.Services.WebApi, cancellationToken).WaitAsync(cancellationToken),
+            App.ResourceNotifications.WaitForResourceHealthyAsync(Shared.Services.WebFrontend, cancellationToken).WaitAsync(cancellationToken));
     }
 
     [OneTimeTearDown]

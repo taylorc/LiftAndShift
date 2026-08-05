@@ -41,6 +41,5 @@ app.UseExceptionHandler(options => { });
 app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
 
-app.MapFallbackToFile("index.html");
 
 app.Run();

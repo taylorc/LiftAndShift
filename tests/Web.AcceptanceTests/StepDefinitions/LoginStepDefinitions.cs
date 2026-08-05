@@ -12,7 +12,7 @@ public sealed class LoginStepDefinitions(LoginPage loginPage)
         container.RegisterInstanceAs(new LoginPage(page));
     }
 
-    [AfterFeature]
+    [AfterFeature("Login")]
     public static async Task AfterLoginFeature(IObjectContainer container)
     {
         var context = container.Resolve<IBrowserContext>();
@@ -25,7 +25,7 @@ public sealed class LoginStepDefinitions(LoginPage loginPage)
     [When("the user logs in with valid credentials")]
     public async Task TheUserLogsInWithValidCredentials()
     {
-        await loginPage.SetEmail("administrator@localhost");
+        await loginPage.SetEmail("administrator@localhost.com");
         await loginPage.SetPassword("Administrator1!");
         await loginPage.ClickLogin();
     }
@@ -42,7 +42,7 @@ public sealed class LoginStepDefinitions(LoginPage loginPage)
     [When("the user logs in with invalid credentials")]
     public async Task TheUserLogsInWithInvalidCredentials()
     {
-        await loginPage.SetEmail("hacker@localhost");
+        await loginPage.SetEmail("hacker@localhost.com");
         await loginPage.SetPassword("l337hax!");
         await loginPage.ClickLogin();
     }

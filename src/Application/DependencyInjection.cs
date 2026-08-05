@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using LiftAndShift.Application.Calculators;
 using LiftAndShift.Application.Common.Behaviours;
 using LiftAndShift.Application.Common.Models;
 using LiftAndShift.Application.TodoLists.Queries.GetTodos;
@@ -14,6 +15,10 @@ public static class DependencyInjection
     public static void AddApplicationServices(this IHostApplicationBuilder builder)
     {
         var config = TypeAdapterConfig.GlobalSettings;
+
+        // Register calculator services
+        builder.Services.AddSingleton<WarmupCalculatorService>();
+        builder.Services.AddSingleton<PlateCalculatorService>();
 
         // Register all mappings
         config.NewConfig<TodoList, TodoListDto>();

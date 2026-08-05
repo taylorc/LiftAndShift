@@ -10,6 +10,7 @@ public class FunctionalTestSetup
 
     private static WebApiFactory? _factory;
     private static DistributedApplication? _app;
+    public static string ConnectionString { get; private set; } = null!;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
@@ -38,11 +39,11 @@ public class FunctionalTestSetup
         await _app.ResourceNotifications.WaitForResourceHealthyAsync(
             Services.Database, cancellationToken);
 
-        var connectionString = (await _app.GetConnectionStringAsync(Services.Database))!;
+        ConnectionString = (await _app.GetConnectionStringAsync(Services.Database))!;
 
-        _factory = new WebApiFactory(connectionString);
+        _factory = new WebApiFactory(ConnectionString);
         ScopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
-        DbResetter = await DatabaseResetter.CreateAsync(connectionString);
+        DbResetter = await DatabaseResetter.CreateAsync(ConnectionString);
     }
 
     [OneTimeTearDown]

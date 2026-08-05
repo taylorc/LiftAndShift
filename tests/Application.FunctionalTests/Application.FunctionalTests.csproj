@@ -7,6 +7,7 @@
 
     <ItemGroup>
       <PackageReference Include="MessagePack" />
+      <PackageReference Include="Microsoft.OpenApi" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
       <PackageReference Include="Microsoft.NET.Test.Sdk" />
@@ -24,6 +25,7 @@
       <PackageReference Include="Respawn" />
       <PackageReference Include="Shouldly" />
       <PackageReference Include="Aspire.Hosting.Testing" />
+      <PackageReference Include="System.Security.Cryptography.Xml" />
     </ItemGroup>
 
     <ItemGroup>
