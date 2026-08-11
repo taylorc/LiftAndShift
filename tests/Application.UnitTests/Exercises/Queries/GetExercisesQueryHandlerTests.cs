@@ -40,6 +40,29 @@ public class GetExercisesQueryHandlerTests
     }
 
     [Test]
+    public async Task ShouldReturnBuiltInExercise_WhenExerciseHasNoCreator()
+    {
+        _context.Exercises.Add(new Domain.Entities.Exercise
+        {
+            Id = 1,
+            Name = "Squat",
+            Description = "A lower body exercise",
+            MuscleGroup = Domain.Enums.MuscleGroup.Legs,
+            EquipmentType = Domain.Enums.EquipmentType.Barbell,
+            IsCustom = false,
+            CreatedByUserId = null
+        });
+
+        await _context.SaveChangesAsync(CancellationToken.None);
+
+        var result = await _handler.Handle(new GetExercisesQuery(), CancellationToken.None);
+
+        result.ShouldNotBeNull();
+        result.Count().ShouldBe(1);
+        result[0].Name.ShouldBe("Squat");
+    }
+
+    [Test]
     public async Task ShouldReturnCorrectExercise_WhenExercisesExist()
     {
         _context.Exercises.Add(new Domain.Entities.Exercise

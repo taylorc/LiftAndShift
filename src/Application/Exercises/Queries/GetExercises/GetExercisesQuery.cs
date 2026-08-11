@@ -37,8 +37,10 @@ public class GetExercisesQueryHandler : IRequestHandler<GetExercisesQuery, List<
 
     public async Task<List<ExerciseDto>> Handle(GetExercisesQuery request, CancellationToken cancellationToken)
     {
+        // Built-in exercises have no creator and are visible to everyone; custom ones
+        // are only visible to the user who created them.
         var query = _context.Exercises
-            .Where(e => e.IsActive && e.CreatedByUserId == _currentUser.Id);
+            .Where(e => e.IsActive && (e.CreatedByUserId == null || e.CreatedByUserId == _currentUser.Id));
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {

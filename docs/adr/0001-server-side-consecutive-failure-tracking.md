@@ -1,0 +1,5 @@
+# Derive consecutive-failure tracking server-side instead of trusting the client
+
+`LogProgrammeSessionCommand` previously accepted a client-supplied `Dictionary<string, int> ConsecutiveFailures` and fed it directly into the deload calculation — nothing prevented a client from reporting a failure count disconnected from the sets actually logged. We removed that field and instead derive each lift's consecutive-failure count server-side from the `WorkoutSet` data already submitted in the same request (a lift fails a session when any evaluable working set's `CompletedReps` falls short of its programmed `Reps`), storing the result as a new `ConsecutiveFailures` dictionary on `ProgrammeSession`, parallel to the existing `LiftProgression` dictionary.
+
+**Consequences**: breaking API change (nswag client regen + frontend update required) and needs an EF migration for the new column. In exchange, it closes a gap where the server trusted a client-computed aggregate for a decision (deload) that permanently affects programme state.

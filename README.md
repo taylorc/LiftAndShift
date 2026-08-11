@@ -53,5 +53,13 @@ To run the tests:
 dotnet test
 ```
 
+Browser-driven acceptance tests live with the frontend in `src/Web/ClientApp/e2e` and are run by Playwright.
+They start the full Aspire stack themselves, so no server needs to be running first:
+```bash
+cd src/Web/ClientApp
+npx playwright install chromium
+npm run test:e2e
+```
+
 ## Help
 To learn more about the template go to the [project website](https://cleanarchitecture.jasontaylor.dev). Here you can find additional guidance, request new features, report a bug, and discuss the template with other users.

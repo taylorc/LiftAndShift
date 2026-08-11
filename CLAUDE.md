@@ -69,6 +69,24 @@ vertical slice (with validator) → EF configuration in `Infrastructure/Data/Con
 method in the matching `Web/Endpoints/*.cs` group → regenerate the nswag client for the frontend.
 
 Tests mirror this layering: `Domain.UnitTests`, `Application.UnitTests` (handler/validator logic, mocked dependencies),
-`Application.FunctionalTests` (full MediatR pipeline against a real/test database), `Infrastructure.IntegrationTests`,
-and `Web.AcceptanceTests` (Reqnroll/SpecFlow-style Gherkin features driven by Playwright, see `Features`/`StepDefinitions`/`Pages`).
+`Application.FunctionalTests` (full MediatR pipeline against a real/test database), and `Infrastructure.IntegrationTests`.
 `TestAppHost` provides the Aspire-based test harness used to spin up dependencies for functional/integration tests.
+
+Browser-driven acceptance tests live with the frontend in `src/Web/ClientApp/e2e` (Playwright + TypeScript, plain
+`test()` blocks and page objects — no Gherkin), run with `npm run test:e2e`. Playwright's `globalSetup` spawns
+`tests/AcceptanceTestHost`, a console app that starts the whole Aspire stack via `Aspire.Hosting.Testing`, prints
+`E2E_BASE_URL=<frontend url>`, and shuts down when its stdin closes.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues on `taylorc/LiftAndShift`, using the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default canonical labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
