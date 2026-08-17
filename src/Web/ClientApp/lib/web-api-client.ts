@@ -3344,7 +3344,6 @@ export class LogProgrammeSessionCommand implements ILogProgrammeSessionCommand {
     userProgrammeId?: number;
     programmeSessionId?: number;
     exercises?: LogWorkoutExerciseDto[];
-    consecutiveFailures?: { [key: string]: number; };
 
     [key: string]: any;
 
@@ -3370,13 +3369,6 @@ export class LogProgrammeSessionCommand implements ILogProgrammeSessionCommand {
                 for (let item of _data["exercises"])
                     this.exercises!.push(LogWorkoutExerciseDto.fromJS(item));
             }
-            if (_data["consecutiveFailures"]) {
-                this.consecutiveFailures = {} as any;
-                for (let key in _data["consecutiveFailures"]) {
-                    if (_data["consecutiveFailures"].hasOwnProperty(key))
-                        (this.consecutiveFailures as any)![key] = _data["consecutiveFailures"][key];
-                }
-            }
         }
     }
 
@@ -3400,13 +3392,6 @@ export class LogProgrammeSessionCommand implements ILogProgrammeSessionCommand {
             for (let item of this.exercises)
                 data["exercises"].push(item ? item.toJSON() : undefined as any);
         }
-        if (this.consecutiveFailures) {
-            data["consecutiveFailures"] = {};
-            for (let key in this.consecutiveFailures) {
-                if (this.consecutiveFailures.hasOwnProperty(key))
-                    (data["consecutiveFailures"] as any)[key] = (this.consecutiveFailures as any)[key];
-            }
-        }
         return data;
     }
 }
@@ -3415,7 +3400,6 @@ export interface ILogProgrammeSessionCommand {
     userProgrammeId?: number;
     programmeSessionId?: number;
     exercises?: LogWorkoutExerciseDto[];
-    consecutiveFailures?: { [key: string]: number; };
 
     [key: string]: any;
 }

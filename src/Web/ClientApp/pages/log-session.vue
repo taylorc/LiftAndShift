@@ -28,7 +28,7 @@
 
         <table role="grid">
           <thead>
-            <tr><th>#</th><th>Type</th><th>Weight (kg)</th><th>Target Reps</th></tr>
+            <tr><th>#</th><th>Type</th><th>Weight (kg)</th><th>Target Reps</th><th>Completed Reps</th><th>Done</th></tr>
           </thead>
           <tbody>
             <tr v-for="(set, si) in ex.sets" :key="si">
@@ -36,14 +36,11 @@
               <td>{{ set.setType === 0 ? 'Warmup' : 'Working' }}</td>
               <td><input type="number" step="0.5" v-model.number="set.weightKg" /></td>
               <td><input type="number" v-model.number="set.reps" /></td>
+              <td><input type="number" min="0" v-model.number="set.completedReps" /></td>
+              <td><input type="checkbox" v-model="set.isCompleted" /></td>
             </tr>
           </tbody>
         </table>
-
-        <label>
-          Consecutive failures on this lift last time (for progression)
-          <input type="number" min="0" v-model.number="consecutiveFailures[ex.liftName]" />
-        </label>
       </article>
 
       <div style="display: flex; gap: 1rem;">
@@ -73,7 +70,6 @@ const error = ref('')
 
 type PrefilledExercise = LogWorkoutExerciseDto & { liftName: string }
 const exercises = ref<PrefilledExercise[]>([])
-const consecutiveFailures = reactive<Record<string, number>>({})
 
 onMounted(async () => {
   if (!store.activeProgramme) {
@@ -98,17 +94,16 @@ onMounted(async () => {
         isCompleted: false,
       }))
 
+      // Pre-filled assuming success; the lifter adjusts completedReps/isCompleted down if a set was missed.
       const workingSets: LogWorkoutSetDto[] = Array.from({ length: lift.sets }, (_, i) => ({
         setNumber: warmupSets.length + i + 1,
         setType: 1,
         weightKg: lift.weightKg,
         reps: lift.reps,
-        completedReps: null,
+        completedReps: lift.reps,
         notes: null,
-        isCompleted: false,
+        isCompleted: true,
       }))
-
-      consecutiveFailures[lift.liftName] = 0
 
       return {
         liftName: lift.liftName,
@@ -132,7 +127,6 @@ async function save() {
     const workoutId = await store.logProgrammeSession(store.activeProgramme!.id, {
       programmeSessionId: store.nextSession!.sessionId,
       exercises: exercises.value.map(({ liftName, ...rest }) => rest),
-      consecutiveFailures,
     })
     router.push('/workout/' + workoutId)
   } catch (e: any) {

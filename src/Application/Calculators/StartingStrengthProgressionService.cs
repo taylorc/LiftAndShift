@@ -19,6 +19,12 @@ public static class StartingStrengthProgressionService
             return RoundToNearest1_25(ApplyDeload(currentWeight));
         }
 
+        if (consecutiveFailures > 0)
+        {
+            // 1st/2nd consecutive failure: hold weight steady rather than incrementing.
+            return RoundToNearest1_25(currentWeight);
+        }
+
         return RoundToNearest1_25(ApplyIncrement(liftName, currentWeight));
     }
 

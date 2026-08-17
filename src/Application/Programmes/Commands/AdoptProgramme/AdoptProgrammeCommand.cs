@@ -50,7 +50,8 @@ public class AdoptProgrammeCommandHandler : IRequestHandler<AdoptProgrammeComman
         {
             WorkoutType = WorkoutType.A,
             ScheduledDate = DateTimeOffset.UtcNow,
-            LiftProgression = new Dictionary<string, decimal>(request.StartingWeights)
+            LiftProgression = new Dictionary<string, decimal>(request.StartingWeights),
+            ConsecutiveFailures = new Dictionary<string, int>()
         };
 
         programme.Sessions.Add(firstSession);

@@ -13,7 +13,6 @@ public record LogProgrammeSessionCommand : IRequest<int>
     public int UserProgrammeId { get; init; }
     public int ProgrammeSessionId { get; init; }
     public List<LogWorkoutExerciseDto> Exercises { get; init; } = new();
-    public Dictionary<string, int> ConsecutiveFailures { get; init; } = new();
 }
 
 public class LogProgrammeSessionCommandHandler : IRequestHandler<LogProgrammeSessionCommand, int>
@@ -85,12 +84,36 @@ public class LogProgrammeSessionCommandHandler : IRequestHandler<LogProgrammeSes
         programmeSession.CompletedDate = DateTimeOffset.UtcNow;
         programmeSession.WorkoutSessionId = workoutSession.Id;
 
-        // Calculate new weights with progression
+        // Resolve exercise ids to lift names so we can match logged sets against LiftProgression/ConsecutiveFailures keys
+        var exerciseIds = request.Exercises.Select(e => e.ExerciseId).Distinct().ToList();
+        var liftNamesByExerciseId = await _context.Exercises
+            .Where(e => exerciseIds.Contains(e.Id))
+            .ToDictionaryAsync(e => e.Id, e => e.Name, cancellationToken);
+
+        // Only lifts actually trained this session (with evaluable working sets) get their weight/failure-count
+        // updated; everything else carries forward unchanged.
         var newWeights = new Dictionary<string, decimal>(programmeSession.LiftProgression);
-        foreach (var (liftName, currentWeight) in programmeSession.LiftProgression)
+        var newFailures = new Dictionary<string, int>(programmeSession.ConsecutiveFailures);
+
+        foreach (var ex in request.Exercises)
         {
-            int failures = request.ConsecutiveFailures.TryGetValue(liftName, out var f) ? f : 0;
-            newWeights[liftName] = StartingStrengthProgressionService.NextWeight(liftName, currentWeight, failures);
+            if (!liftNamesByExerciseId.TryGetValue(ex.ExerciseId, out var liftName) ||
+                !newWeights.TryGetValue(liftName, out var currentWeight))
+            {
+                continue;
+            }
+
+            var outcome = DetermineOutcome(ex);
+            if (outcome == LiftOutcome.Skip)
+            {
+                continue;
+            }
+
+            var previousFailures = newFailures.TryGetValue(liftName, out var pf) ? pf : 0;
+            var failuresForThisSession = outcome == LiftOutcome.Success ? 0 : previousFailures + 1;
+
+            newWeights[liftName] = StartingStrengthProgressionService.NextWeight(liftName, currentWeight, failuresForThisSession);
+            newFailures[liftName] = StartingStrengthProgressionService.ShouldDeload(failuresForThisSession) ? 0 : failuresForThisSession;
         }
 
         // Determine next workout type
@@ -101,7 +124,8 @@ public class LogProgrammeSessionCommandHandler : IRequestHandler<LogProgrammeSes
             UserProgrammeId = programme.Id,
             WorkoutType = nextType,
             ScheduledDate = DateTimeOffset.UtcNow.AddDays(2),
-            LiftProgression = newWeights
+            LiftProgression = newWeights,
+            ConsecutiveFailures = newFailures
         };
 
         programme.Sessions.Add(nextSession);
@@ -111,6 +135,29 @@ public class LogProgrammeSessionCommandHandler : IRequestHandler<LogProgrammeSes
         await _context.SaveChangesAsync(cancellationToken);
 
         return workoutSession.Id;
+    }
+
+    private enum LiftOutcome { Success, Failure, Skip }
+
+    /// <summary>
+    /// A lift succeeds when every evaluable working set (non-null CompletedReps) met its programmed Reps target,
+    /// fails when any evaluable working set fell short, and is skipped (untrained) when there are no evaluable
+    /// working sets at all. Warm-up sets and sets with null CompletedReps are excluded from evaluation.
+    /// </summary>
+    private static LiftOutcome DetermineOutcome(LogWorkoutExerciseDto exercise)
+    {
+        var evaluableSets = exercise.Sets
+            .Where(s => s.SetType == SetType.WorkingSet && s.CompletedReps.HasValue)
+            .ToList();
+
+        if (evaluableSets.Count == 0)
+        {
+            return LiftOutcome.Skip;
+        }
+
+        return evaluableSets.All(s => s.CompletedReps!.Value >= s.Reps)
+            ? LiftOutcome.Success
+            : LiftOutcome.Failure;
     }
 }
 

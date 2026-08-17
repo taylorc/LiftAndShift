@@ -17,6 +17,24 @@ public class ProgrammeSessionTests
     }
 
     [Test]
+    public void ConsecutiveFailuresShouldDefaultToEmptyDictionary()
+    {
+        var session = new ProgrammeSession();
+
+        session.ConsecutiveFailures.ShouldBeEmpty();
+    }
+
+    [Test]
+    public void ConsecutiveFailuresShouldStoreAssignedCounts()
+    {
+        var session = new ProgrammeSession();
+
+        session.ConsecutiveFailures["Squat"] = 2;
+
+        session.ConsecutiveFailures["Squat"].ShouldBe(2);
+    }
+
+    [Test]
     public void WorkoutSessionIdAndCompletedDateShouldDefaultToNull()
     {
         var session = new ProgrammeSession();

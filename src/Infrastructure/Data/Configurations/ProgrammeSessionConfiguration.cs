@@ -21,5 +21,17 @@ public class ProgrammeSessionConfiguration : IEntityTypeConfiguration<ProgrammeS
 
         builder.Property(s => s.LiftProgression)
             .HasColumnType("jsonb");
+
+        builder.Property(s => s.ConsecutiveFailures)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Deserialize<Dictionary<string, int>>(v, (JsonSerializerOptions?)null) ?? new Dictionary<string, int>())
+            .Metadata.SetValueComparer(new ValueComparer<Dictionary<string, int>>(
+                (a, b) => (a ?? new()).SequenceEqual(b ?? new()),
+                d => d.Aggregate(0, (hash, kvp) => HashCode.Combine(hash, kvp.Key.GetHashCode(), kvp.Value.GetHashCode())),
+                d => new Dictionary<string, int>(d)));
+
+        builder.Property(s => s.ConsecutiveFailures)
+            .HasColumnType("jsonb");
     }
 }

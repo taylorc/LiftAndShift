@@ -35,12 +35,12 @@ public class StartingStrengthProgressionServiceTests
     [Test]
     [TestCase(1)]
     [TestCase(2)]
-    public void ShouldMaintainIncrement_AfterOneOrTwoFailures(int failures)
+    public void ShouldHoldWeight_AfterOneOrTwoFailures(int failures)
     {
-        // With 1 or 2 failures we still add weight (not a deload)
+        // With 1 or 2 failures the weight is held steady (not incremented, not yet a deload)
         var next = StartingStrengthProgressionService.NextWeight("Squat", 100m, failures);
 
-        next.ShouldBe(105m);
+        next.ShouldBe(100m);
     }
 
     [Test]

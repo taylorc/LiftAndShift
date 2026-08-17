@@ -20,6 +20,8 @@ public class LogProgrammeSessionCommandHandlerTests
     private Mock<IUser> _currentUser = null!;
     private LogProgrammeSessionCommandHandler _handler = null!;
     private const string UserId = "user-1";
+    private const int SquatExerciseId = 1;
+    private const int BenchPressExerciseId = 2;
 
     [SetUp]
     public void SetUp()
@@ -28,6 +30,9 @@ public class LogProgrammeSessionCommandHandlerTests
         _currentUser = new Mock<IUser>();
         _currentUser.Setup(u => u.Id).Returns(UserId);
         _handler = new LogProgrammeSessionCommandHandler(_context, _currentUser.Object);
+
+        _context.Exercises.Add(new Exercise { Id = SquatExerciseId, Name = "Squat" });
+        _context.Exercises.Add(new Exercise { Id = BenchPressExerciseId, Name = "Bench Press" });
     }
 
     [TearDown]
@@ -37,7 +42,9 @@ public class LogProgrammeSessionCommandHandlerTests
     }
 
     private async Task<(UserProgramme Programme, ProgrammeSession Session)> SeedProgrammeAsync(
-        string userId = UserId, WorkoutType workoutType = WorkoutType.A)
+        string userId = UserId,
+        WorkoutType workoutType = WorkoutType.A,
+        Dictionary<string, int>? consecutiveFailures = null)
     {
         var programme = new UserProgramme
         {
@@ -51,13 +58,34 @@ public class LogProgrammeSessionCommandHandlerTests
         {
             WorkoutType = workoutType,
             ScheduledDate = DateTimeOffset.UtcNow,
-            LiftProgression = new() { ["Squat"] = 60m, ["Bench Press"] = 40m }
+            LiftProgression = new() { ["Squat"] = 60m, ["Bench Press"] = 40m },
+            ConsecutiveFailures = consecutiveFailures ?? new()
         };
         programme.Sessions.Add(session);
         _context.UserProgrammes.Add(programme);
         await _context.SaveChangesAsync(CancellationToken.None);
         return (programme, session);
     }
+
+    private static LogWorkoutExerciseDto SuccessfulSquat() => new()
+    {
+        ExerciseId = SquatExerciseId,
+        OrderIndex = 0,
+        Sets = new()
+        {
+            new LogWorkoutSetDto { SetNumber = 1, WeightKg = 60m, Reps = 5, CompletedReps = 5, IsCompleted = true }
+        }
+    };
+
+    private static LogWorkoutExerciseDto FailedSquat() => new()
+    {
+        ExerciseId = SquatExerciseId,
+        OrderIndex = 0,
+        Sets = new()
+        {
+            new LogWorkoutSetDto { SetNumber = 1, WeightKg = 60m, Reps = 5, CompletedReps = 3, IsCompleted = true }
+        }
+    };
 
     [Test]
     public async Task ShouldThrowNotFoundException_WhenProgrammeDoesNotExist()
@@ -104,18 +132,7 @@ public class LogProgrammeSessionCommandHandlerTests
         {
             UserProgrammeId = programme.Id,
             ProgrammeSessionId = session.Id,
-            Exercises = new()
-            {
-                new LogWorkoutExerciseDto
-                {
-                    ExerciseId = 1,
-                    OrderIndex = 0,
-                    Sets = new()
-                    {
-                        new LogWorkoutSetDto { SetNumber = 1, WeightKg = 60m, Reps = 5, CompletedReps = 5, IsCompleted = true }
-                    }
-                }
-            }
+            Exercises = new() { SuccessfulSquat() }
         };
 
         var workoutSessionId = await _handler.Handle(command, CancellationToken.None);
@@ -165,46 +182,151 @@ public class LogProgrammeSessionCommandHandlerTests
     }
 
     [Test]
-    public async Task ShouldCreateNextSessionWithIncrementedWeights_WhenNoFailures()
+    public async Task ShouldIncrementWeightAndResetFailures_WhenLiftSucceeds()
     {
-        var (programme, session) = await SeedProgrammeAsync();
+        var (programme, session) = await SeedProgrammeAsync(
+            consecutiveFailures: new() { ["Squat"] = 2 });
 
         await _handler.Handle(new LogProgrammeSessionCommand
         {
             UserProgrammeId = programme.Id,
             ProgrammeSessionId = session.Id,
-            ConsecutiveFailures = new()
-        }, CancellationToken.None);
-
-        var sessions = await _context.ProgrammeSessions
-            .Where(s => s.UserProgrammeId == programme.Id)
-            .ToListAsync(CancellationToken.None);
-
-        sessions.Count.ShouldBe(2);
-        var nextSession = sessions.Single(s => s.Id != session.Id);
-        nextSession.WorkoutType.ShouldBe(WorkoutType.B);
-        // Squat is a heavy lift: +5kg. Bench Press is not: +2.5kg
-        nextSession.LiftProgression["Squat"].ShouldBe(65m);
-        nextSession.LiftProgression["Bench Press"].ShouldBe(42.5m);
-    }
-
-    [Test]
-    public async Task ShouldDeloadWeight_WhenThreeConsecutiveFailures()
-    {
-        var (programme, session) = await SeedProgrammeAsync();
-
-        await _handler.Handle(new LogProgrammeSessionCommand
-        {
-            UserProgrammeId = programme.Id,
-            ProgrammeSessionId = session.Id,
-            ConsecutiveFailures = new() { ["Squat"] = 3 }
+            Exercises = new() { SuccessfulSquat() }
         }, CancellationToken.None);
 
         var nextSession = await _context.ProgrammeSessions
             .Where(s => s.UserProgrammeId == programme.Id && s.Id != session.Id)
             .SingleAsync(CancellationToken.None);
 
-        // 60 * 0.9 = 54, rounded to nearest 1.25 = 53.75
+        // Squat is a heavy lift: +5kg
+        nextSession.LiftProgression["Squat"].ShouldBe(65m);
+        nextSession.ConsecutiveFailures["Squat"].ShouldBe(0);
+    }
+
+    [Test]
+    public async Task ShouldHoldWeightAndIncrementFailures_WhenLiftFailsOnce()
+    {
+        var (programme, session) = await SeedProgrammeAsync();
+
+        await _handler.Handle(new LogProgrammeSessionCommand
+        {
+            UserProgrammeId = programme.Id,
+            ProgrammeSessionId = session.Id,
+            Exercises = new() { FailedSquat() }
+        }, CancellationToken.None);
+
+        var nextSession = await _context.ProgrammeSessions
+            .Where(s => s.UserProgrammeId == programme.Id && s.Id != session.Id)
+            .SingleAsync(CancellationToken.None);
+
+        // 1st consecutive failure: weight held, failure count now 1
+        nextSession.LiftProgression["Squat"].ShouldBe(60m);
+        nextSession.ConsecutiveFailures["Squat"].ShouldBe(1);
+    }
+
+    [Test]
+    public async Task ShouldDeloadAndResetFailures_WhenThirdConsecutiveFailure()
+    {
+        var (programme, session) = await SeedProgrammeAsync(
+            consecutiveFailures: new() { ["Squat"] = 2 });
+
+        await _handler.Handle(new LogProgrammeSessionCommand
+        {
+            UserProgrammeId = programme.Id,
+            ProgrammeSessionId = session.Id,
+            Exercises = new() { FailedSquat() }
+        }, CancellationToken.None);
+
+        var nextSession = await _context.ProgrammeSessions
+            .Where(s => s.UserProgrammeId == programme.Id && s.Id != session.Id)
+            .SingleAsync(CancellationToken.None);
+
+        // 3rd consecutive failure: 60 * 0.9 = 54, rounded to nearest 1.25 = 53.75, and the streak resets
         nextSession.LiftProgression["Squat"].ShouldBe(53.75m);
+        nextSession.ConsecutiveFailures["Squat"].ShouldBe(0);
+    }
+
+    [Test]
+    public async Task ShouldCarryLiftForwardUnchanged_WhenNotTrainedThisSession()
+    {
+        var (programme, session) = await SeedProgrammeAsync(
+            consecutiveFailures: new() { ["Bench Press"] = 1 });
+
+        // Only Squat is logged this session; Bench Press isn't trained
+        await _handler.Handle(new LogProgrammeSessionCommand
+        {
+            UserProgrammeId = programme.Id,
+            ProgrammeSessionId = session.Id,
+            Exercises = new() { SuccessfulSquat() }
+        }, CancellationToken.None);
+
+        var nextSession = await _context.ProgrammeSessions
+            .Where(s => s.UserProgrammeId == programme.Id && s.Id != session.Id)
+            .SingleAsync(CancellationToken.None);
+
+        nextSession.LiftProgression["Bench Press"].ShouldBe(40m);
+        nextSession.ConsecutiveFailures["Bench Press"].ShouldBe(1);
+    }
+
+    [Test]
+    public async Task ShouldCarryLiftForwardUnchanged_WhenNoWorkingSetsHaveCompletedReps()
+    {
+        var (programme, session) = await SeedProgrammeAsync(
+            consecutiveFailures: new() { ["Squat"] = 1 });
+
+        var uncheckedSquat = new LogWorkoutExerciseDto
+        {
+            ExerciseId = SquatExerciseId,
+            OrderIndex = 0,
+            Sets = new()
+            {
+                new LogWorkoutSetDto { SetNumber = 1, WeightKg = 60m, Reps = 5, CompletedReps = null, IsCompleted = false }
+            }
+        };
+
+        await _handler.Handle(new LogProgrammeSessionCommand
+        {
+            UserProgrammeId = programme.Id,
+            ProgrammeSessionId = session.Id,
+            Exercises = new() { uncheckedSquat }
+        }, CancellationToken.None);
+
+        var nextSession = await _context.ProgrammeSessions
+            .Where(s => s.UserProgrammeId == programme.Id && s.Id != session.Id)
+            .SingleAsync(CancellationToken.None);
+
+        nextSession.LiftProgression["Squat"].ShouldBe(60m);
+        nextSession.ConsecutiveFailures["Squat"].ShouldBe(1);
+    }
+
+    [Test]
+    public async Task ShouldIgnoreWarmupSets_WhenDeterminingOutcome()
+    {
+        var (programme, session) = await SeedProgrammeAsync();
+
+        var squatWithFailedWarmup = new LogWorkoutExerciseDto
+        {
+            ExerciseId = SquatExerciseId,
+            OrderIndex = 0,
+            Sets = new()
+            {
+                new LogWorkoutSetDto { SetNumber = 1, SetType = SetType.Warmup, WeightKg = 20m, Reps = 5, CompletedReps = 2, IsCompleted = true },
+                new LogWorkoutSetDto { SetNumber = 2, SetType = SetType.WorkingSet, WeightKg = 60m, Reps = 5, CompletedReps = 5, IsCompleted = true }
+            }
+        };
+
+        await _handler.Handle(new LogProgrammeSessionCommand
+        {
+            UserProgrammeId = programme.Id,
+            ProgrammeSessionId = session.Id,
+            Exercises = new() { squatWithFailedWarmup }
+        }, CancellationToken.None);
+
+        var nextSession = await _context.ProgrammeSessions
+            .Where(s => s.UserProgrammeId == programme.Id && s.Id != session.Id)
+            .SingleAsync(CancellationToken.None);
+
+        // The warmup shortfall is irrelevant; the working set succeeded, so Squat progresses
+        nextSession.LiftProgression["Squat"].ShouldBe(65m);
     }
 }

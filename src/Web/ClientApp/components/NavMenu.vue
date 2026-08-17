@@ -28,6 +28,7 @@ watch(
       <li><NuxtLink to="/exercise-library">Exercises</NuxtLink></li>
     </template>
     <li><NuxtLink to="/programme">Programme</NuxtLink></li>
+    <li><NuxtLink to="/exercise-library">Exercises</NuxtLink></li>
     <li><NuxtLink to="/settings">Settings</NuxtLink></li>
     <li><a href="#" @click.prevent="handleLogout">Log out</a></li>
     <li><NuxtLink to="/usermanagement">Account</NuxtLink></li>
