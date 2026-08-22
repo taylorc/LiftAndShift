@@ -38,7 +38,7 @@ public class GetWorkoutQueryHandlerTests
     public async Task ShouldThrowNotFoundException_WhenSessionDoesNotExist()
     {
         await Should.ThrowAsync<NotFoundException>(() =>
-            _handler.Handle(new GetWorkoutQuery(999), CancellationToken.None));
+            _handler.Handle(new GetWorkoutQuery(999), CancellationToken.None).AsTask());
     }
 
     [Test]
@@ -53,7 +53,7 @@ public class GetWorkoutQueryHandlerTests
         await _context.SaveChangesAsync(CancellationToken.None);
 
         await Should.ThrowAsync<NotFoundException>(() =>
-            _handler.Handle(new GetWorkoutQuery(session.Id), CancellationToken.None));
+            _handler.Handle(new GetWorkoutQuery(session.Id), CancellationToken.None).AsTask());
     }
 
     [Test]

@@ -23,7 +23,7 @@ public class AdoptProgrammeCommandHandler : IRequestHandler<AdoptProgrammeComman
         _currentUser = currentUser;
     }
 
-    public async Task<int> Handle(AdoptProgrammeCommand request, CancellationToken cancellationToken)
+    public async ValueTask<int> Handle(AdoptProgrammeCommand request, CancellationToken cancellationToken)
     {
         // Abandon any existing active programme
         var existingActive = await _context.UserProgrammes

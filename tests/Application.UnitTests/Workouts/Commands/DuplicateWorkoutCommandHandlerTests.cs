@@ -70,7 +70,7 @@ public class DuplicateWorkoutCommandHandlerTests
     public async Task ShouldThrowNotFoundException_WhenSourceDoesNotExist()
     {
         await Should.ThrowAsync<NotFoundException>(() =>
-            _handler.Handle(new DuplicateWorkoutCommand(999), CancellationToken.None));
+            _handler.Handle(new DuplicateWorkoutCommand(999), CancellationToken.None).AsTask());
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class DuplicateWorkoutCommandHandlerTests
         await _context.SaveChangesAsync(CancellationToken.None);
 
         await Should.ThrowAsync<NotFoundException>(() =>
-            _handler.Handle(new DuplicateWorkoutCommand(source.Id), CancellationToken.None));
+            _handler.Handle(new DuplicateWorkoutCommand(source.Id), CancellationToken.None).AsTask());
     }
 
     [Test]

@@ -25,7 +25,7 @@ public class GetBodyMetricsQueryHandler : IRequestHandler<GetBodyMetricsQuery, L
         _currentUser = currentUser;
     }
 
-    public async Task<List<BodyMetricDto>> Handle(GetBodyMetricsQuery request, CancellationToken cancellationToken)
+    public async ValueTask<List<BodyMetricDto>> Handle(GetBodyMetricsQuery request, CancellationToken cancellationToken)
     {
         return await _context.BodyMetrics
             .Where(m => m.UserId == _currentUser.Id)

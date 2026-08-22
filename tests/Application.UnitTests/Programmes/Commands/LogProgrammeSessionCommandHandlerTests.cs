@@ -92,7 +92,7 @@ public class LogProgrammeSessionCommandHandlerTests
     {
         var command = new LogProgrammeSessionCommand { UserProgrammeId = 999, ProgrammeSessionId = 1 };
 
-        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None).AsTask());
     }
 
     [Test]
@@ -106,7 +106,7 @@ public class LogProgrammeSessionCommandHandlerTests
             ProgrammeSessionId = session.Id
         };
 
-        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None).AsTask());
     }
 
     [Test]
@@ -120,7 +120,7 @@ public class LogProgrammeSessionCommandHandlerTests
             ProgrammeSessionId = 999
         };
 
-        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None).AsTask());
     }
 
     [Test]

@@ -35,7 +35,7 @@ public class GetExercisesQueryHandler : IRequestHandler<GetExercisesQuery, List<
         _currentUser = currentUser;
     }
 
-    public async Task<List<ExerciseDto>> Handle(GetExercisesQuery request, CancellationToken cancellationToken)
+    public async ValueTask<List<ExerciseDto>> Handle(GetExercisesQuery request, CancellationToken cancellationToken)
     {
         // Built-in exercises have no creator and are visible to everyone; custom ones
         // are only visible to the user who created them.

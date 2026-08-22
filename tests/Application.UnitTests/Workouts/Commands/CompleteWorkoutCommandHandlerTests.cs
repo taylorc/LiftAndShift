@@ -57,7 +57,7 @@ public class CompleteWorkoutCommandHandlerTests
     {
         var command = new CompleteWorkoutCommand(999);
 
-        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None).AsTask());
     }
 
     [Test]
@@ -68,7 +68,7 @@ public class CompleteWorkoutCommandHandlerTests
         await _context.SaveChangesAsync(CancellationToken.None);
 
         await Should.ThrowAsync<NotFoundException>(() =>
-            _handler.Handle(new CompleteWorkoutCommand(session.Id), CancellationToken.None));
+            _handler.Handle(new CompleteWorkoutCommand(session.Id), CancellationToken.None).AsTask());
     }
 
     [Test]

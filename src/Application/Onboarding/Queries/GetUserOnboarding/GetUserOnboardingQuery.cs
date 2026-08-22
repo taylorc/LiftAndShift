@@ -18,7 +18,7 @@ public class GetUserOnboardingQueryHandler : IRequestHandler<GetUserOnboardingQu
         _currentUser = currentUser;
     }
 
-    public async Task<UserOnboardingDto> Handle(GetUserOnboardingQuery request, CancellationToken cancellationToken)
+    public async ValueTask<UserOnboardingDto> Handle(GetUserOnboardingQuery request, CancellationToken cancellationToken)
     {
         return await _identityService.GetUserOnboardingAsync(_currentUser.Id!)
             ?? new UserOnboardingDto();

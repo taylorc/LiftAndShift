@@ -20,7 +20,7 @@ public class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListComman
         _context = context;
     }
 
-    public async Task<int> Handle(CreateTodoListCommand request, CancellationToken cancellationToken)
+    public async ValueTask<int> Handle(CreateTodoListCommand request, CancellationToken cancellationToken)
     {
         var entity = new TodoList
         {

@@ -66,7 +66,7 @@ public class DeleteExerciseCommandHandlerTests
     {
         var deleteCommand = new DeleteExerciseCommand(18);
 
-        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(deleteCommand, CancellationToken.None));
+        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(deleteCommand, CancellationToken.None).AsTask());
 
     }
 }   

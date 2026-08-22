@@ -41,9 +41,10 @@ If `ca-usecase` isn't found: `dotnet new install Clean.Architecture.Solution.Tem
 Clean Architecture, four `src` layers plus a Web API and Aspire host:
 
 - **Domain** — entities (`src/Domain/Entities`), value objects, enums, domain events. No dependencies on other layers.
-- **Application** — CQRS via MediatR, organized as **vertical slices per feature** (e.g. `Workouts/Commands/LogWorkout/LogWorkoutCommand.cs`
+- **Application** — CQRS via Mediator (martinothamar/Mediator, a source-generator-based MediatR alternative), organized as
+  **vertical slices per feature** (e.g. `Workouts/Commands/LogWorkout/LogWorkoutCommand.cs`
   contains the command record, handler, and FluentValidation validator together in one file). Cross-cutting concerns
-  run as MediatR pipeline behaviours registered in `Application/DependencyInjection.cs`, in order: logging
+  run as Mediator pipeline behaviours registered in `Application/DependencyInjection.cs`, in order: logging
   (pre-processor) → `UnhandledExceptionBehaviour` → `AuthorizationBehaviour` (enforces `[Authorize]` on
   commands/queries) → `ValidationBehaviour` (runs FluentValidation validators, throws on failure) → `PerformanceBehaviour`.
   Entity/DTO mapping uses Mapster, configured centrally in the same file.
@@ -53,7 +54,7 @@ Clean Architecture, four `src` layers plus a Web API and Aspire host:
   static class implementing `Map(RouteGroupBuilder)`, auto-discovered and registered by `WebApplicationExtensions.MapEndpoints`
   under `/api/{ClassName}` (override `IEndpointGroup.RoutePrefix` for nested routes). Handlers are named static methods
   (never lambdas — `EndpointRouteBuilderExtensions` guards against anonymous delegates since the method name becomes
-  the OpenAPI `operationId` used by nswag codegen) that resolve `ISender` and dispatch a MediatR command/query. Custom
+  the OpenAPI `operationId` used by nswag codegen) that resolve `ISender` and dispatch a Mediator command/query. Custom
   exceptions (`ValidationException`, `NotFoundException`, `UnauthorizedAccessException`, `ForbiddenAccessException`)
   are translated to RFC 9110 `ProblemDetails` by `ProblemDetailsExceptionHandler`.
 - **Shared** — contracts shared across host boundaries (e.g. Aspire service names in `MediatorContracts`/`Services`).
@@ -69,7 +70,7 @@ vertical slice (with validator) → EF configuration in `Infrastructure/Data/Con
 method in the matching `Web/Endpoints/*.cs` group → regenerate the nswag client for the frontend.
 
 Tests mirror this layering: `Domain.UnitTests`, `Application.UnitTests` (handler/validator logic, mocked dependencies),
-`Application.FunctionalTests` (full MediatR pipeline against a real/test database), and `Infrastructure.IntegrationTests`.
+`Application.FunctionalTests` (full Mediator pipeline against a real/test database), and `Infrastructure.IntegrationTests`.
 `TestAppHost` provides the Aspire-based test harness used to spin up dependencies for functional/integration tests.
 
 Browser-driven acceptance tests live with the frontend in `src/Web/ClientApp/e2e` (Playwright + TypeScript, plain

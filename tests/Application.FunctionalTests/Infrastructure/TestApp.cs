@@ -1,7 +1,7 @@
 using LiftAndShift.Domain.Constants;
 using LiftAndShift.Infrastructure.Data;
 using LiftAndShift.Infrastructure.Identity;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +22,7 @@ public static class TestApp
         return await mediator.Send(request);
     }
 
-    public static async Task SendAsync(IBaseRequest request)
+    public static async Task SendAsync(IRequest request)
     {
         using var scope = FunctionalTestSetup.ScopeFactory.CreateScope();
 

@@ -2,7 +2,7 @@
 
 Maps the product's user stories (`StrartingStrength-UserStories.md`) to the Application-layer vertical slices
 (`src/Application/<Feature>/{Commands,Queries}`) and Web API endpoints (`src/Web/Endpoints`) that implement them.
-Each `Application` feature is a MediatR command/query; each `Web` group exposes it over HTTP.
+Each `Application` feature is a Mediator command/query; each `Web` group exposes it over HTTP.
 
 ## Epic 1 — Account Setup & Onboarding
 
@@ -52,7 +52,7 @@ Each `Application` feature is a MediatR command/query; each `Web` group exposes 
 
 ## Cross-cutting pipeline
 
-Every command/query passes through the MediatR pipeline (`Application/DependencyInjection.cs`), in order:
+Every command/query passes through the Mediator pipeline (`Application/DependencyInjection.cs`), in order:
 logging (pre-processor) → `UnhandledExceptionBehaviour` → `AuthorizationBehaviour` (`[Authorize]`) →
 `ValidationBehaviour` (FluentValidation) → `PerformanceBehaviour`. This is where cross-story concerns like
 "must be authenticated" and "must be a valid onboarding payload" are enforced, rather than in the handlers

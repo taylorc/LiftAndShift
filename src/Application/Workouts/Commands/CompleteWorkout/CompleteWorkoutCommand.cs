@@ -19,7 +19,7 @@ public class CompleteWorkoutCommandHandler : IRequestHandler<CompleteWorkoutComm
         _currentUser = currentUser;
     }
 
-    public async Task Handle(CompleteWorkoutCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(CompleteWorkoutCommand request, CancellationToken cancellationToken)
     {
         var session = await _context.WorkoutSessions
             .Include(s => s.Exercises)
@@ -69,5 +69,7 @@ public class CompleteWorkoutCommandHandler : IRequestHandler<CompleteWorkoutComm
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        return Unit.Value;
     }
 }

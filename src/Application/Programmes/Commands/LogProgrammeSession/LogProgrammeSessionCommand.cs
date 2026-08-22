@@ -26,7 +26,7 @@ public class LogProgrammeSessionCommandHandler : IRequestHandler<LogProgrammeSes
         _currentUser = currentUser;
     }
 
-    public async Task<int> Handle(LogProgrammeSessionCommand request, CancellationToken cancellationToken)
+    public async ValueTask<int> Handle(LogProgrammeSessionCommand request, CancellationToken cancellationToken)
     {
         var programme = await _context.UserProgrammes
             .Include(p => p.Sessions)

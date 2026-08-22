@@ -16,7 +16,7 @@ public record GetProgrammeTemplatesQuery : IRequest<List<ProgrammeTemplateDto>>;
 
 public class GetProgrammeTemplatesQueryHandler : IRequestHandler<GetProgrammeTemplatesQuery, List<ProgrammeTemplateDto>>
 {
-    public Task<List<ProgrammeTemplateDto>> Handle(GetProgrammeTemplatesQuery request, CancellationToken cancellationToken)
+    public ValueTask<List<ProgrammeTemplateDto>> Handle(GetProgrammeTemplatesQuery request, CancellationToken cancellationToken)
     {
         var templates = new List<ProgrammeTemplateDto>
         {
@@ -30,6 +30,6 @@ public class GetProgrammeTemplatesQueryHandler : IRequestHandler<GetProgrammeTem
             }
         };
 
-        return Task.FromResult(templates);
+        return ValueTask.FromResult(templates);
     }
 }

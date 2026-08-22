@@ -18,7 +18,7 @@ public class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
         _context = context;
     }
 
-    public async Task<TodosVm> Handle(GetTodosQuery request, CancellationToken cancellationToken)
+    public async ValueTask<TodosVm> Handle(GetTodosQuery request, CancellationToken cancellationToken)
     {
         return new TodosVm
         {

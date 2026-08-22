@@ -40,7 +40,7 @@ public class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, Dashb
         _currentUser = currentUser;
     }
 
-    public async Task<DashboardDto> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
+    public async ValueTask<DashboardDto> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
         var weekStart = now.AddDays(-(int)now.DayOfWeek);

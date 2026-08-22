@@ -27,7 +27,7 @@ public class GetWorkoutHistoryQueryHandler : IRequestHandler<GetWorkoutHistoryQu
         _currentUser = currentUser;
     }
 
-    public async Task<List<WorkoutHistoryItemDto>> Handle(GetWorkoutHistoryQuery request, CancellationToken cancellationToken)
+    public async ValueTask<List<WorkoutHistoryItemDto>> Handle(GetWorkoutHistoryQuery request, CancellationToken cancellationToken)
     {
         var sessions = await _context.WorkoutSessions
             .Include(s => s.Exercises)

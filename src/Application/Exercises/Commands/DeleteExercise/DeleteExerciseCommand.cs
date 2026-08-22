@@ -17,7 +17,7 @@ public class DeleteExerciseCommandHandler : IRequestHandler<DeleteExerciseComman
         _currentUser = currentUser;
     }
 
-    public async Task Handle(DeleteExerciseCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(DeleteExerciseCommand request, CancellationToken cancellationToken)
     {
         var exercise = await _context.Exercises
             .FirstOrDefaultAsync(e => e.Id == request.Id && e.IsCustom && e.CreatedByUserId == _currentUser.Id, cancellationToken);
@@ -26,5 +26,7 @@ public class DeleteExerciseCommandHandler : IRequestHandler<DeleteExerciseComman
 
         exercise.IsActive = false;
         await _context.SaveChangesAsync(cancellationToken);
+
+        return Unit.Value;
     }
 }

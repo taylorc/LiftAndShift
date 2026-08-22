@@ -5,6 +5,7 @@ using LiftAndShift.Application.Common.Models;
 using LiftAndShift.Application.TodoLists.Queries.GetTodos;
 using LiftAndShift.Domain.Entities;
 using Mapster;
+using Mediator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -31,13 +32,17 @@ public static class DependencyInjection
 
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-        builder.Services.AddMediatR(cfg => {
-            cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            cfg.AddOpenRequestPreProcessor(typeof(LoggingBehaviour<>));
-            cfg.AddOpenBehavior(typeof(UnhandledExceptionBehaviour<,>));
-            cfg.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
-            cfg.AddOpenBehavior(typeof(ValidationBehaviour<,>));
-            cfg.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
+        builder.Services.AddMediator(options => {
+            // Handlers depend on scoped services (IApplicationDbContext, IUser), so the mediator
+            // and its pipeline behaviours must be scoped rather than the library's singleton default.
+            options.ServiceLifetime = ServiceLifetime.Scoped;
+            options.PipelineBehaviors = [
+                typeof(LoggingBehaviour<,>),
+                typeof(UnhandledExceptionBehaviour<,>),
+                typeof(AuthorizationBehaviour<,>),
+                typeof(ValidationBehaviour<,>),
+                typeof(PerformanceBehaviour<,>),
+            ];
         });
     }
 }

@@ -1,5 +1,5 @@
 ﻿using LiftAndShift.Domain.Common;
-using MediatR;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 

@@ -71,7 +71,7 @@ public class GetActiveProgrammeQueryHandler : IRequestHandler<GetActiveProgramme
         _warmupCalculator = warmupCalculator;
     }
 
-    public async Task<ActiveProgrammeDto?> Handle(GetActiveProgrammeQuery request, CancellationToken cancellationToken)
+    public async ValueTask<ActiveProgrammeDto?> Handle(GetActiveProgrammeQuery request, CancellationToken cancellationToken)
     {
         var programme = await _context.UserProgrammes
             .Include(p => p.Sessions)

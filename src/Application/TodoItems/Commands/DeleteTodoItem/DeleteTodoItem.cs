@@ -13,7 +13,7 @@ public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemComman
         _context = context;
     }
 
-    public async Task Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoItems
             .FindAsync([request.Id], cancellationToken);
@@ -23,6 +23,8 @@ public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemComman
         _context.TodoItems.Remove(entity);
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        return Unit.Value;
     }
 
 }

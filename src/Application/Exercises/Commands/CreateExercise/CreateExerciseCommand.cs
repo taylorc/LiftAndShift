@@ -26,7 +26,7 @@ public class CreateExerciseCommandHandler : IRequestHandler<CreateExerciseComman
         _currentUser = currentUser;
     }
 
-    public async Task<int> Handle(CreateExerciseCommand request, CancellationToken cancellationToken)
+    public async ValueTask<int> Handle(CreateExerciseCommand request, CancellationToken cancellationToken)
     {
         var exercise = new Exercise
         {

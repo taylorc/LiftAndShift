@@ -44,7 +44,7 @@ public class LogWorkoutCommandHandler : IRequestHandler<LogWorkoutCommand, int>
         _currentUser = currentUser;
     }
 
-    public async Task<int> Handle(LogWorkoutCommand request, CancellationToken cancellationToken)
+    public async ValueTask<int> Handle(LogWorkoutCommand request, CancellationToken cancellationToken)
     {
         var session = new WorkoutSession
         {

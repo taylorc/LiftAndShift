@@ -23,7 +23,7 @@ public class LogBodyMetricCommandHandler : IRequestHandler<LogBodyMetricCommand,
         _currentUser = currentUser;
     }
 
-    public async Task<int> Handle(LogBodyMetricCommand request, CancellationToken cancellationToken)
+    public async ValueTask<int> Handle(LogBodyMetricCommand request, CancellationToken cancellationToken)
     {
         var metric = new BodyMetric
         {

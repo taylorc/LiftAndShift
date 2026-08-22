@@ -19,7 +19,7 @@ public class DuplicateWorkoutCommandHandler : IRequestHandler<DuplicateWorkoutCo
         _currentUser = currentUser;
     }
 
-    public async Task<int> Handle(DuplicateWorkoutCommand request, CancellationToken cancellationToken)
+    public async ValueTask<int> Handle(DuplicateWorkoutCommand request, CancellationToken cancellationToken)
     {
         var source = await _context.WorkoutSessions
             .Include(s => s.Exercises)

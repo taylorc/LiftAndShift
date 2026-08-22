@@ -26,7 +26,7 @@ public class GetExerciseProgressQueryHandler : IRequestHandler<GetExerciseProgre
         _currentUser = currentUser;
     }
 
-    public async Task<List<ExerciseProgressPointDto>> Handle(GetExerciseProgressQuery request, CancellationToken cancellationToken)
+    public async ValueTask<List<ExerciseProgressPointDto>> Handle(GetExerciseProgressQuery request, CancellationToken cancellationToken)
     {
         var sessions = await _context.WorkoutSessions
             .Include(s => s.Exercises)

@@ -49,7 +49,7 @@ public class GetWorkoutQueryHandler : IRequestHandler<GetWorkoutQuery, WorkoutDe
         _currentUser = currentUser;
     }
 
-    public async Task<WorkoutDetailDto> Handle(GetWorkoutQuery request, CancellationToken cancellationToken)
+    public async ValueTask<WorkoutDetailDto> Handle(GetWorkoutQuery request, CancellationToken cancellationToken)
     {
         var session = await _context.WorkoutSessions
             .Include(s => s.Exercises.OrderBy(e => e.OrderIndex))

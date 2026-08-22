@@ -28,7 +28,7 @@ public class SaveUserOnboardingCommandHandler : IRequestHandler<SaveUserOnboardi
         _currentUser = currentUser;
     }
 
-    public Task<Result> Handle(SaveUserOnboardingCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result> Handle(SaveUserOnboardingCommand request, CancellationToken cancellationToken)
     {
         var dto = new UserOnboardingDto
         {
@@ -42,6 +42,6 @@ public class SaveUserOnboardingCommandHandler : IRequestHandler<SaveUserOnboardi
             AlternatingLiftStartingWeight = request.AlternatingLiftStartingWeight
         };
 
-        return _identityService.SaveUserOnboardingAsync(_currentUser.Id!, dto);
+        return await _identityService.SaveUserOnboardingAsync(_currentUser.Id!, dto);
     }
 }
