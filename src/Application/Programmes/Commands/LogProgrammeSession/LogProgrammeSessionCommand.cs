@@ -1,6 +1,6 @@
 using LiftAndShift.Application.Common.Interfaces;
 using LiftAndShift.Application.Common.Security;
-using LiftAndShift.Application.Calculators;
+using LiftAndShift.Application.Programmes.Progression;
 using LiftAndShift.Application.Workouts.Commands.LogWorkout;
 using LiftAndShift.Domain.Entities;
 using LiftAndShift.Domain.Enums;
@@ -92,29 +92,17 @@ public class LogProgrammeSessionCommandHandler : IRequestHandler<LogProgrammeSes
 
         // Only lifts actually trained this session (with evaluable working sets) get their weight/failure-count
         // updated; everything else carries forward unchanged.
-        var newWeights = new Dictionary<string, decimal>(programmeSession.LiftProgression);
-        var newFailures = new Dictionary<string, int>(programmeSession.ConsecutiveFailures);
+        var loggedLifts = request.Exercises
+            .Where(ex => liftNamesByExerciseId.ContainsKey(ex.ExerciseId))
+            .Select(ex => new LoggedLift(
+                liftNamesByExerciseId[ex.ExerciseId],
+                ex.Sets.Select(s => new LoggedSet(s.SetType, s.CompletedReps, s.Reps)).ToList()))
+            .ToList();
 
-        foreach (var ex in request.Exercises)
-        {
-            if (!liftNamesByExerciseId.TryGetValue(ex.ExerciseId, out var liftName) ||
-                !newWeights.TryGetValue(liftName, out var currentWeight))
-            {
-                continue;
-            }
-
-            var outcome = DetermineOutcome(ex);
-            if (outcome == LiftOutcome.Skip)
-            {
-                continue;
-            }
-
-            var previousFailures = newFailures.TryGetValue(liftName, out var pf) ? pf : 0;
-            var failuresForThisSession = outcome == LiftOutcome.Success ? 0 : previousFailures + 1;
-
-            newWeights[liftName] = StartingStrengthProgressionService.NextWeight(liftName, currentWeight, failuresForThisSession);
-            newFailures[liftName] = StartingStrengthProgressionService.ShouldDeload(failuresForThisSession) ? 0 : failuresForThisSession;
-        }
+        var (newWeights, newFailures) = ProgrammeProgressionRecalculator.NextSessionState(
+            programmeSession.LiftProgression,
+            programmeSession.ConsecutiveFailures,
+            loggedLifts);
 
         // Determine next workout type
         var nextType = programmeSession.WorkoutType == WorkoutType.A ? WorkoutType.B : WorkoutType.A;
@@ -135,29 +123,6 @@ public class LogProgrammeSessionCommandHandler : IRequestHandler<LogProgrammeSes
         await _context.SaveChangesAsync(cancellationToken);
 
         return workoutSession.Id;
-    }
-
-    private enum LiftOutcome { Success, Failure, Skip }
-
-    /// <summary>
-    /// A lift succeeds when every evaluable working set (non-null CompletedReps) met its programmed Reps target,
-    /// fails when any evaluable working set fell short, and is skipped (untrained) when there are no evaluable
-    /// working sets at all. Warm-up sets and sets with null CompletedReps are excluded from evaluation.
-    /// </summary>
-    private static LiftOutcome DetermineOutcome(LogWorkoutExerciseDto exercise)
-    {
-        var evaluableSets = exercise.Sets
-            .Where(s => s.SetType == SetType.WorkingSet && s.CompletedReps.HasValue)
-            .ToList();
-
-        if (evaluableSets.Count == 0)
-        {
-            return LiftOutcome.Skip;
-        }
-
-        return evaluableSets.All(s => s.CompletedReps!.Value >= s.Reps)
-            ? LiftOutcome.Success
-            : LiftOutcome.Failure;
     }
 }
 
