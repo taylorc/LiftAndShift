@@ -94,7 +94,7 @@ onMounted(async () => {
         isCompleted: false,
       }))
 
-      // Pre-filled assuming success; the lifter adjusts completedReps/isCompleted down if a set was missed.
+      // Weight/reps are pre-filled from the programme; the lifter ticks Done per set as they complete it.
       const workingSets: LogWorkoutSetDto[] = Array.from({ length: lift.sets }, (_, i) => ({
         setNumber: warmupSets.length + i + 1,
         setType: 1,
@@ -102,7 +102,7 @@ onMounted(async () => {
         reps: lift.reps,
         completedReps: lift.reps,
         notes: null,
-        isCompleted: true,
+        isCompleted: false,
       }))
 
       return {
