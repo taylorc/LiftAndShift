@@ -44,10 +44,11 @@
       </article>
 
       <div style="display: flex; gap: 1rem;">
-        <button type="submit" :aria-busy="saving" :disabled="!allExercisesMapped">Complete Session</button>
+        <button type="submit" :aria-busy="saving" :disabled="!allExercisesMapped || !readyToComplete">Complete Session</button>
       </div>
 
       <p v-if="!allExercisesMapped" class="secondary">Match every lift to an exercise before completing.</p>
+      <p v-if="!readyToComplete" class="secondary">Enter completed reps for every working set, and tick Done for each set you've logged.</p>
       <p v-if="error" style="color: var(--pico-del-color);">{{ error }}</p>
     </form>
   </main>
@@ -100,7 +101,7 @@ onMounted(async () => {
         setType: 1,
         weightKg: lift.weightKg,
         reps: lift.reps,
-        completedReps: lift.reps,
+        completedReps: null,
         notes: null,
         isCompleted: false,
       }))
@@ -119,6 +120,19 @@ onMounted(async () => {
 })
 
 const allExercisesMapped = computed(() => exercises.value.every((ex) => ex.exerciseId))
+
+// A working set must have its completed reps entered; any set with completed reps entered
+// (working or warmup) must be ticked Done.
+const readyToComplete = computed(() =>
+  exercises.value.every((ex) =>
+    ex.sets.every((set) => {
+      const repsEntered = set.completedReps !== null && set.completedReps !== undefined
+      if (set.setType === 1 && !repsEntered) return false
+      if (repsEntered && !set.isCompleted) return false
+      return true
+    }),
+  ),
+)
 
 async function save() {
   error.value = ''

@@ -167,5 +167,21 @@ public class LogProgrammeSessionCommandValidator : AbstractValidator<LogProgramm
     {
         RuleFor(x => x.UserProgrammeId).GreaterThan(0);
         RuleFor(x => x.ProgrammeSessionId).GreaterThan(0);
+
+        RuleForEach(x => x.Exercises).ChildRules(exercise =>
+        {
+            exercise.RuleForEach(e => e.Sets).ChildRules(set =>
+            {
+                set.RuleFor(s => s.CompletedReps)
+                    .NotNull()
+                    .When(s => s.SetType == SetType.WorkingSet)
+                    .WithMessage("Every working set must have its completed reps filled in before the session can be completed.");
+
+                set.RuleFor(s => s.IsCompleted)
+                    .Equal(true)
+                    .When(s => s.CompletedReps.HasValue)
+                    .WithMessage("A set with completed reps entered must be marked done.");
+            });
+        });
     }
 }
