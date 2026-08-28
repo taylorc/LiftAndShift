@@ -763,6 +763,66 @@ export class ProgrammesClient {
     }
 
     /**
+     * Get the logged sessions of a programme
+     * @return OK
+     */
+    getProgrammeSessions(id: number): Promise<LoggedProgrammeSessionDto[]> {
+        let url_ = this.baseUrl + "/api/Programmes/{id}/sessions";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetProgrammeSessions(_response);
+        });
+    }
+
+    protected processGetProgrammeSessions(response: Response): Promise<LoggedProgrammeSessionDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(LoggedProgrammeSessionDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return result200;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LoggedProgrammeSessionDto[]>(null as any);
+    }
+
+    /**
      * Adopt a programme
      * @return Created
      */
@@ -873,6 +933,223 @@ export class ProgrammesClient {
             });
         }
         return Promise.resolve<number>(null as any);
+    }
+
+    /**
+     * Edit a logged programme session and replay downstream progression
+     * @return No Content
+     */
+    editProgrammeSession(id: number, sessionId: number, body: EditProgrammeSessionCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Programmes/{id}/sessions/{sessionId}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (sessionId === undefined || sessionId === null)
+            throw new globalThis.Error("The parameter 'sessionId' must be defined.");
+        url_ = url_.replace("{sessionId}", encodeURIComponent("" + sessionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processEditProgrammeSession(_response);
+        });
+    }
+
+    protected processEditProgrammeSession(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Delete the most recently logged programme session
+     * @return No Content
+     */
+    deleteProgrammeSession(id: number, sessionId: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/Programmes/{id}/sessions/{sessionId}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (sessionId === undefined || sessionId === null)
+            throw new globalThis.Error("The parameter 'sessionId' must be defined.");
+        url_ = url_.replace("{sessionId}", encodeURIComponent("" + sessionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteProgrammeSession(_response);
+        });
+    }
+
+    protected processDeleteProgrammeSession(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Override a session's prescribed weights and replay downstream progression
+     * @return No Content
+     */
+    updateProgrammeSessionInputs(id: number, sessionId: number, body: UpdateProgrammeSessionInputsCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Programmes/{id}/sessions/{sessionId}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        if (sessionId === undefined || sessionId === null)
+            throw new globalThis.Error("The parameter 'sessionId' must be defined.");
+        url_ = url_.replace("{sessionId}", encodeURIComponent("" + sessionId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateProgrammeSessionInputs(_response);
+        });
+    }
+
+    protected processUpdateProgrammeSessionInputs(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    /**
+     * Update programme metadata
+     * @return No Content
+     */
+    updateProgramme(id: number, body: UpdateProgrammeCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Programmes/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateProgramme(_response);
+        });
+    }
+
+    protected processUpdateProgramme(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 204) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status === 400) {
+            return response.text().then((_responseText) => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            });
+        } else if (status === 401) {
+            return response.text().then((_responseText) => {
+            return throwException("Unauthorized", status, _responseText, _headers);
+            });
+        } else if (status === 403) {
+            return response.text().then((_responseText) => {
+            return throwException("Forbidden", status, _responseText, _headers);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 
@@ -2852,6 +3129,70 @@ export interface IDashboardDto {
     [key: string]: any;
 }
 
+export class EditProgrammeSessionCommand implements IEditProgrammeSessionCommand {
+    userProgrammeId?: number;
+    programmeSessionId?: number;
+    exercises?: LogWorkoutExerciseDto[];
+
+    [key: string]: any;
+
+    constructor(data?: IEditProgrammeSessionCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.userProgrammeId = _data["userProgrammeId"];
+            this.programmeSessionId = _data["programmeSessionId"];
+            if (Array.isArray(_data["exercises"])) {
+                this.exercises = [] as any;
+                for (let item of _data["exercises"])
+                    this.exercises!.push(LogWorkoutExerciseDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): EditProgrammeSessionCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new EditProgrammeSessionCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["userProgrammeId"] = this.userProgrammeId;
+        data["programmeSessionId"] = this.programmeSessionId;
+        if (Array.isArray(this.exercises)) {
+            data["exercises"] = [];
+            for (let item of this.exercises)
+                data["exercises"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IEditProgrammeSessionCommand {
+    userProgrammeId?: number;
+    programmeSessionId?: number;
+    exercises?: LogWorkoutExerciseDto[];
+
+    [key: string]: any;
+}
+
 export class ExerciseDto implements IExerciseDto {
     id?: number;
     name?: string;
@@ -3276,6 +3617,226 @@ export interface ILogBodyMetricCommand {
     date?: Date;
     weightKg?: number;
     notes?: string | undefined;
+
+    [key: string]: any;
+}
+
+export class LoggedProgrammeSessionDto implements ILoggedProgrammeSessionDto {
+    sessionId?: number;
+    workoutSessionId?: number;
+    workoutType?: string;
+    scheduledDate?: Date;
+    completedDate?: Date;
+    exercises?: LoggedSessionExerciseDto[];
+
+    [key: string]: any;
+
+    constructor(data?: ILoggedProgrammeSessionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.sessionId = _data["sessionId"];
+            this.workoutSessionId = _data["workoutSessionId"];
+            this.workoutType = _data["workoutType"];
+            this.scheduledDate = _data["scheduledDate"] ? new Date(_data["scheduledDate"].toString()) : undefined as any;
+            this.completedDate = _data["completedDate"] ? new Date(_data["completedDate"].toString()) : undefined as any;
+            if (Array.isArray(_data["exercises"])) {
+                this.exercises = [] as any;
+                for (let item of _data["exercises"])
+                    this.exercises!.push(LoggedSessionExerciseDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): LoggedProgrammeSessionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LoggedProgrammeSessionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["sessionId"] = this.sessionId;
+        data["workoutSessionId"] = this.workoutSessionId;
+        data["workoutType"] = this.workoutType;
+        data["scheduledDate"] = this.scheduledDate ? this.scheduledDate.toISOString() : undefined as any;
+        data["completedDate"] = this.completedDate ? this.completedDate.toISOString() : undefined as any;
+        if (Array.isArray(this.exercises)) {
+            data["exercises"] = [];
+            for (let item of this.exercises)
+                data["exercises"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ILoggedProgrammeSessionDto {
+    sessionId?: number;
+    workoutSessionId?: number;
+    workoutType?: string;
+    scheduledDate?: Date;
+    completedDate?: Date;
+    exercises?: LoggedSessionExerciseDto[];
+
+    [key: string]: any;
+}
+
+export class LoggedSessionExerciseDto implements ILoggedSessionExerciseDto {
+    exerciseId?: number;
+    exerciseName?: string;
+    orderIndex?: number;
+    notes?: string | undefined;
+    sets?: LoggedSessionSetDto[];
+
+    [key: string]: any;
+
+    constructor(data?: ILoggedSessionExerciseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.exerciseId = _data["exerciseId"];
+            this.exerciseName = _data["exerciseName"];
+            this.orderIndex = _data["orderIndex"];
+            this.notes = _data["notes"];
+            if (Array.isArray(_data["sets"])) {
+                this.sets = [] as any;
+                for (let item of _data["sets"])
+                    this.sets!.push(LoggedSessionSetDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): LoggedSessionExerciseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LoggedSessionExerciseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["exerciseId"] = this.exerciseId;
+        data["exerciseName"] = this.exerciseName;
+        data["orderIndex"] = this.orderIndex;
+        data["notes"] = this.notes;
+        if (Array.isArray(this.sets)) {
+            data["sets"] = [];
+            for (let item of this.sets)
+                data["sets"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ILoggedSessionExerciseDto {
+    exerciseId?: number;
+    exerciseName?: string;
+    orderIndex?: number;
+    notes?: string | undefined;
+    sets?: LoggedSessionSetDto[];
+
+    [key: string]: any;
+}
+
+export class LoggedSessionSetDto implements ILoggedSessionSetDto {
+    setNumber?: number;
+    setType?: string;
+    weightKg?: number;
+    reps?: number;
+    completedReps?: number | undefined;
+    notes?: string | undefined;
+    isCompleted?: boolean;
+
+    [key: string]: any;
+
+    constructor(data?: ILoggedSessionSetDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.setNumber = _data["setNumber"];
+            this.setType = _data["setType"];
+            this.weightKg = _data["weightKg"];
+            this.reps = _data["reps"];
+            this.completedReps = _data["completedReps"];
+            this.notes = _data["notes"];
+            this.isCompleted = _data["isCompleted"];
+        }
+    }
+
+    static fromJS(data: any): LoggedSessionSetDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LoggedSessionSetDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["setNumber"] = this.setNumber;
+        data["setType"] = this.setType;
+        data["weightKg"] = this.weightKg;
+        data["reps"] = this.reps;
+        data["completedReps"] = this.completedReps;
+        data["notes"] = this.notes;
+        data["isCompleted"] = this.isCompleted;
+        return data;
+    }
+}
+
+export interface ILoggedSessionSetDto {
+    setNumber?: number;
+    setType?: string;
+    weightKg?: number;
+    reps?: number;
+    completedReps?: number | undefined;
+    notes?: string | undefined;
+    isCompleted?: boolean;
 
     [key: string]: any;
 }
@@ -4648,6 +5209,146 @@ export interface ITwoFactorResponse {
     recoveryCodes?: string[] | undefined;
     isTwoFactorEnabled: boolean;
     isMachineRemembered: boolean;
+
+    [key: string]: any;
+}
+
+export class UpdateProgrammeCommand implements IUpdateProgrammeCommand {
+    userProgrammeId?: number;
+    startedAt?: Date | undefined;
+    status?: number | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IUpdateProgrammeCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.userProgrammeId = _data["userProgrammeId"];
+            this.startedAt = _data["startedAt"] ? new Date(_data["startedAt"].toString()) : undefined as any;
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UpdateProgrammeCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateProgrammeCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["userProgrammeId"] = this.userProgrammeId;
+        data["startedAt"] = this.startedAt ? this.startedAt.toISOString() : undefined as any;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUpdateProgrammeCommand {
+    userProgrammeId?: number;
+    startedAt?: Date | undefined;
+    status?: number | undefined;
+
+    [key: string]: any;
+}
+
+export class UpdateProgrammeSessionInputsCommand implements IUpdateProgrammeSessionInputsCommand {
+    userProgrammeId?: number;
+    programmeSessionId?: number;
+    liftProgression?: { [key: string]: number; } | undefined;
+    consecutiveFailures?: { [key: string]: number; } | undefined;
+
+    [key: string]: any;
+
+    constructor(data?: IUpdateProgrammeSessionInputsCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.userProgrammeId = _data["userProgrammeId"];
+            this.programmeSessionId = _data["programmeSessionId"];
+            if (_data["liftProgression"]) {
+                this.liftProgression = {} as any;
+                for (let key in _data["liftProgression"]) {
+                    if (_data["liftProgression"].hasOwnProperty(key))
+                        (this.liftProgression as any)![key] = _data["liftProgression"][key];
+                }
+            }
+            if (_data["consecutiveFailures"]) {
+                this.consecutiveFailures = {} as any;
+                for (let key in _data["consecutiveFailures"]) {
+                    if (_data["consecutiveFailures"].hasOwnProperty(key))
+                        (this.consecutiveFailures as any)![key] = _data["consecutiveFailures"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdateProgrammeSessionInputsCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateProgrammeSessionInputsCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["userProgrammeId"] = this.userProgrammeId;
+        data["programmeSessionId"] = this.programmeSessionId;
+        if (this.liftProgression) {
+            data["liftProgression"] = {};
+            for (let key in this.liftProgression) {
+                if (this.liftProgression.hasOwnProperty(key))
+                    (data["liftProgression"] as any)[key] = (this.liftProgression as any)[key];
+            }
+        }
+        if (this.consecutiveFailures) {
+            data["consecutiveFailures"] = {};
+            for (let key in this.consecutiveFailures) {
+                if (this.consecutiveFailures.hasOwnProperty(key))
+                    (data["consecutiveFailures"] as any)[key] = (this.consecutiveFailures as any)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IUpdateProgrammeSessionInputsCommand {
+    userProgrammeId?: number;
+    programmeSessionId?: number;
+    liftProgression?: { [key: string]: number; } | undefined;
+    consecutiveFailures?: { [key: string]: number; } | undefined;
 
     [key: string]: any;
 }
