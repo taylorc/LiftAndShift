@@ -1,6 +1,8 @@
 using LiftAndShift.Application.Programmes.Commands.AdoptProgramme;
+using LiftAndShift.Application.Programmes.Commands.DeleteProgrammeSession;
 using LiftAndShift.Application.Programmes.Commands.EditProgrammeSession;
 using LiftAndShift.Application.Programmes.Commands.LogProgrammeSession;
+using LiftAndShift.Application.Programmes.Commands.UpdateProgramme;
 using LiftAndShift.Application.Programmes.Queries.GetActiveProgramme;
 using LiftAndShift.Application.Programmes.Queries.GetProgrammeSessions;
 using LiftAndShift.Application.Programmes.Queries.GetProgrammeTemplates;
@@ -20,6 +22,8 @@ public class Programmes : IEndpointGroup
         groupBuilder.MapPost(AdoptProgramme, "adopt");
         groupBuilder.MapPost(LogProgrammeSession, "{id}/log-session");
         groupBuilder.MapPut(EditProgrammeSession, "{id}/sessions/{sessionId}");
+        groupBuilder.MapDelete(DeleteProgrammeSession, "{id}/sessions/{sessionId}");
+        groupBuilder.MapPatch(UpdateProgramme, "{id}");
     }
 
     [EndpointSummary("Get available programme templates")]
@@ -52,6 +56,20 @@ public class Programmes : IEndpointGroup
     public static async Task<NoContent> EditProgrammeSession(ISender sender, int id, int sessionId, EditProgrammeSessionCommand command)
     {
         await sender.Send(command with { UserProgrammeId = id, ProgrammeSessionId = sessionId });
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Delete the most recently logged programme session")]
+    public static async Task<NoContent> DeleteProgrammeSession(ISender sender, int id, int sessionId)
+    {
+        await sender.Send(new DeleteProgrammeSessionCommand { UserProgrammeId = id, ProgrammeSessionId = sessionId });
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Update programme metadata")]
+    public static async Task<NoContent> UpdateProgramme(ISender sender, int id, UpdateProgrammeCommand command)
+    {
+        await sender.Send(command with { UserProgrammeId = id });
         return TypedResults.NoContent();
     }
 }
