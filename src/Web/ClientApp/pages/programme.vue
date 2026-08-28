@@ -15,6 +15,25 @@
           <small>Session {{ store.activeProgramme.sessionCount }}</small>
         </header>
         <p>Started {{ formatDate(store.activeProgramme.startedAt) }}</p>
+
+        <details>
+          <summary>Edit programme details</summary>
+          <form class="programme-meta" @submit.prevent="saveMeta">
+            <label>
+              Start date
+              <input type="date" v-model="meta.startedAt" />
+            </label>
+            <label>
+              Status
+              <select v-model.number="meta.status">
+                <option :value="0">Active</option>
+                <option :value="1">Paused</option>
+                <option :value="2">Abandoned</option>
+              </select>
+            </label>
+            <button type="submit" :aria-busy="savingMeta">Save details</button>
+          </form>
+        </details>
       </article>
 
       <!-- Next session -->
@@ -51,6 +70,34 @@
       <div v-else>
         <p class="secondary">All sessions completed. The next session will be generated after you log one.</p>
       </div>
+
+      <!-- Past sessions -->
+      <section v-if="store.sessions.length">
+        <h2>Past sessions</h2>
+        <table role="grid">
+          <thead>
+            <tr><th>Date</th><th>Workout</th><th>Lifts</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="s in store.sessions" :key="s.sessionId">
+              <td>{{ formatDate(s.completedDate) }}</td>
+              <td>{{ s.workoutType }}</td>
+              <td>{{ (s.exercises ?? []).map((e) => e.exerciseName).join(', ') }}</td>
+              <td style="text-align: right; white-space: nowrap;">
+                <NuxtLink :to="`/programme/session/${s.sessionId}/edit`" role="button" class="secondary outline">Edit</NuxtLink>
+                <button
+                  v-if="s.sessionId === store.latestLoggedSession?.sessionId"
+                  class="secondary outline"
+                  :aria-busy="deleting"
+                  @click="removeLatest(s.sessionId!)"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
     </div>
 
     <!-- No programme -->
@@ -92,17 +139,49 @@ const loading = ref(true)
 const templatesLoading = ref(false)
 const adopting = ref<string | null>(null)
 const starting = ref(false)
+const deleting = ref(false)
+const savingMeta = ref(false)
 const router = useRouter()
+
+const STATUS_VALUE: Record<string, number> = { Active: 0, Paused: 1, Abandoned: 2 }
+const meta = reactive({ startedAt: '', status: 0 })
 
 onMounted(async () => {
   await store.fetchActiveProgramme()
-  if (!store.activeProgramme) {
+  if (store.activeProgramme) {
+    meta.startedAt = store.activeProgramme.startedAt
+      ? new Date(store.activeProgramme.startedAt).toISOString().slice(0, 10)
+      : ''
+    meta.status = STATUS_VALUE[store.activeProgramme.status ?? 'Active'] ?? 0
+    await store.fetchProgrammeSessions(store.activeProgramme.id!)
+  } else {
     templatesLoading.value = true
     await store.fetchTemplates()
     templatesLoading.value = false
   }
   loading.value = false
 })
+
+async function removeLatest(sessionId: number) {
+  deleting.value = true
+  try {
+    await store.deleteProgrammeSession(store.activeProgramme!.id!, sessionId)
+  } finally {
+    deleting.value = false
+  }
+}
+
+async function saveMeta() {
+  savingMeta.value = true
+  try {
+    await store.updateProgramme(store.activeProgramme!.id!, {
+      startedAt: meta.startedAt ? new Date(meta.startedAt) : undefined,
+      status: meta.status,
+    })
+  } finally {
+    savingMeta.value = false
+  }
+}
 
 async function adopt(templateId: string) {
   adopting.value = templateId
@@ -114,7 +193,7 @@ function startSession() {
   router.push('/log-session')
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString()
+function formatDate(date: string | Date | undefined) {
+  return date ? new Date(date).toLocaleDateString() : ''
 }
 </script>

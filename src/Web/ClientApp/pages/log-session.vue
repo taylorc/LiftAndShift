@@ -26,21 +26,7 @@
           </label>
         </header>
 
-        <table role="grid">
-          <thead>
-            <tr><th>#</th><th>Type</th><th>Weight (kg)</th><th>Target Reps</th><th>Completed Reps</th><th>Done</th></tr>
-          </thead>
-          <tbody>
-            <tr v-for="(set, si) in ex.sets" :key="si">
-              <td>{{ set.setNumber }}</td>
-              <td>{{ set.setType === 0 ? 'Warmup' : 'Working' }}</td>
-              <td><input type="number" step="0.5" v-model.number="set.weightKg" /></td>
-              <td><input type="number" v-model.number="set.reps" /></td>
-              <td><input type="number" min="0" v-model.number="set.completedReps" /></td>
-              <td><input type="checkbox" v-model="set.isCompleted" /></td>
-            </tr>
-          </tbody>
-        </table>
+        <SessionSetGrid :sets="ex.sets" />
       </article>
 
       <div style="display: flex; gap: 1rem;">
@@ -120,19 +106,7 @@ onMounted(async () => {
 })
 
 const allExercisesMapped = computed(() => exercises.value.every((ex) => ex.exerciseId))
-
-// A working set must have its completed reps entered; any set with completed reps entered
-// (working or warmup) must be ticked Done.
-const readyToComplete = computed(() =>
-  exercises.value.every((ex) =>
-    ex.sets.every((set) => {
-      const repsEntered = set.completedReps !== null && set.completedReps !== undefined
-      if (set.setType === 1 && !repsEntered) return false
-      if (repsEntered && !set.isCompleted) return false
-      return true
-    }),
-  ),
-)
+const readyToComplete = computed(() => sessionSetsReady(exercises.value))
 
 async function save() {
   error.value = ''

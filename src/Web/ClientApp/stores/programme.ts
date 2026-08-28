@@ -4,12 +4,17 @@ import type {
   ProgrammeTemplateDto,
   AdoptProgrammeCommand,
   LogProgrammeSessionCommand,
+  LoggedProgrammeSessionDto,
+  EditProgrammeSessionCommand,
+  UpdateProgrammeCommand,
+  UpdateProgrammeSessionInputsCommand,
 } from '~/lib/web-api-client'
 
 export const useProgrammeStore = defineStore('programme', {
   state: () => ({
     activeProgramme: null as ActiveProgrammeDto | null,
     templates: [] as ProgrammeTemplateDto[],
+    sessions: [] as LoggedProgrammeSessionDto[],
     loading: false,
     error: null as string | null,
   }),
@@ -17,6 +22,8 @@ export const useProgrammeStore = defineStore('programme', {
   getters: {
     hasActiveProgramme: (state) => state.activeProgramme !== null,
     nextSession: (state) => state.activeProgramme?.nextSession ?? null,
+    latestLoggedSession: (state) =>
+      state.sessions.length > 0 ? state.sessions[state.sessions.length - 1] : null,
   },
 
   actions: {
@@ -53,6 +60,46 @@ export const useProgrammeStore = defineStore('programme', {
       const workoutId = await client.logProgrammeSession(programmeId, command)
       await this.fetchActiveProgramme()
       return workoutId
+    },
+
+    async fetchProgrammeSessions(programmeId: number) {
+      const client = useProgrammesClient()
+      this.sessions = await client.getProgrammeSessions(programmeId)
+    },
+
+    async editProgrammeSession(
+      programmeId: number,
+      sessionId: number,
+      command: EditProgrammeSessionCommand,
+    ) {
+      const client = useProgrammesClient()
+      await client.editProgrammeSession(programmeId, sessionId, command)
+      await this.fetchActiveProgramme()
+      await this.fetchProgrammeSessions(programmeId)
+    },
+
+    async deleteProgrammeSession(programmeId: number, sessionId: number) {
+      const client = useProgrammesClient()
+      await client.deleteProgrammeSession(programmeId, sessionId)
+      await this.fetchActiveProgramme()
+      await this.fetchProgrammeSessions(programmeId)
+    },
+
+    async updateProgramme(programmeId: number, command: UpdateProgrammeCommand) {
+      const client = useProgrammesClient()
+      await client.updateProgramme(programmeId, command)
+      await this.fetchActiveProgramme()
+    },
+
+    async updateProgrammeSessionInputs(
+      programmeId: number,
+      sessionId: number,
+      command: UpdateProgrammeSessionInputsCommand,
+    ) {
+      const client = useProgrammesClient()
+      await client.updateProgrammeSessionInputs(programmeId, sessionId, command)
+      await this.fetchActiveProgramme()
+      await this.fetchProgrammeSessions(programmeId)
     },
   },
 })

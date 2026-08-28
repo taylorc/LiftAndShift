@@ -4,15 +4,40 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useProgrammeStore } from './programme'
 import type { LogProgrammeSessionCommand } from '~/lib/web-api-client'
 
-const { getProgrammeTemplates, adoptProgramme, getActiveProgramme, logProgrammeSession } = vi.hoisted(() => ({
+const {
+  getProgrammeTemplates,
+  adoptProgramme,
+  getActiveProgramme,
+  logProgrammeSession,
+  getProgrammeSessions,
+  editProgrammeSession,
+  deleteProgrammeSession,
+  updateProgramme,
+  updateProgrammeSessionInputs,
+} = vi.hoisted(() => ({
   getProgrammeTemplates: vi.fn(),
   adoptProgramme: vi.fn(),
   getActiveProgramme: vi.fn(),
-  logProgrammeSession: vi.fn()
+  logProgrammeSession: vi.fn(),
+  getProgrammeSessions: vi.fn(),
+  editProgrammeSession: vi.fn(),
+  deleteProgrammeSession: vi.fn(),
+  updateProgramme: vi.fn(),
+  updateProgrammeSessionInputs: vi.fn(),
 }))
 
 mockNuxtImport('useProgrammesClient', () => {
-  return () => ({ getProgrammeTemplates, adoptProgramme, getActiveProgramme, logProgrammeSession })
+  return () => ({
+    getProgrammeTemplates,
+    adoptProgramme,
+    getActiveProgramme,
+    logProgrammeSession,
+    getProgrammeSessions,
+    editProgrammeSession,
+    deleteProgrammeSession,
+    updateProgramme,
+    updateProgrammeSessionInputs,
+  })
 })
 
 
@@ -87,5 +112,62 @@ describe('useProgrammeStore', () => {
     await store.fetchActiveProgramme()
 
     expect(store.activeProgramme).toBeNull()
+  })
+
+  it('fetchProgrammeSessions stores the logged sessions', async () => {
+    const store = useProgrammeStore()
+    getProgrammeSessions.mockResolvedValueOnce([{ sessionId: 1 }, { sessionId: 2 }])
+
+    await store.fetchProgrammeSessions(7)
+
+    expect(getProgrammeSessions).toHaveBeenCalledWith(7)
+    expect(store.sessions.map((s) => s.sessionId)).toEqual([1, 2])
+  })
+
+  it('editProgrammeSession calls the client then refreshes programme and sessions', async () => {
+    const store = useProgrammeStore()
+    getActiveProgramme.mockResolvedValue({ id: 7 })
+    getProgrammeSessions.mockResolvedValue([])
+
+    const command = { exercises: [] } as any
+    await store.editProgrammeSession(7, 3, command)
+
+    expect(editProgrammeSession).toHaveBeenCalledWith(7, 3, command)
+    expect(getActiveProgramme).toHaveBeenCalled()
+    expect(getProgrammeSessions).toHaveBeenCalledWith(7)
+  })
+
+  it('deleteProgrammeSession calls the client then refreshes programme and sessions', async () => {
+    const store = useProgrammeStore()
+    getActiveProgramme.mockResolvedValue({ id: 7 })
+    getProgrammeSessions.mockResolvedValue([])
+
+    await store.deleteProgrammeSession(7, 3)
+
+    expect(deleteProgrammeSession).toHaveBeenCalledWith(7, 3)
+    expect(getProgrammeSessions).toHaveBeenCalledWith(7)
+  })
+
+  it('updateProgramme calls the client then refreshes the programme', async () => {
+    const store = useProgrammeStore()
+    getActiveProgramme.mockResolvedValue({ id: 7 })
+
+    const command = { status: 1 } as any
+    await store.updateProgramme(7, command)
+
+    expect(updateProgramme).toHaveBeenCalledWith(7, command)
+    expect(getActiveProgramme).toHaveBeenCalled()
+  })
+
+  it('updateProgrammeSessionInputs calls the client then refreshes programme and sessions', async () => {
+    const store = useProgrammeStore()
+    getActiveProgramme.mockResolvedValue({ id: 7 })
+    getProgrammeSessions.mockResolvedValue([])
+
+    const command = { liftProgression: { Squat: 100 } } as any
+    await store.updateProgrammeSessionInputs(7, 3, command)
+
+    expect(updateProgrammeSessionInputs).toHaveBeenCalledWith(7, 3, command)
+    expect(getProgrammeSessions).toHaveBeenCalledWith(7)
   })
 })
