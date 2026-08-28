@@ -3,6 +3,7 @@ using LiftAndShift.Application.Programmes.Commands.DeleteProgrammeSession;
 using LiftAndShift.Application.Programmes.Commands.EditProgrammeSession;
 using LiftAndShift.Application.Programmes.Commands.LogProgrammeSession;
 using LiftAndShift.Application.Programmes.Commands.UpdateProgramme;
+using LiftAndShift.Application.Programmes.Commands.UpdateProgrammeSessionInputs;
 using LiftAndShift.Application.Programmes.Queries.GetActiveProgramme;
 using LiftAndShift.Application.Programmes.Queries.GetProgrammeSessions;
 using LiftAndShift.Application.Programmes.Queries.GetProgrammeTemplates;
@@ -23,6 +24,7 @@ public class Programmes : IEndpointGroup
         groupBuilder.MapPost(LogProgrammeSession, "{id}/log-session");
         groupBuilder.MapPut(EditProgrammeSession, "{id}/sessions/{sessionId}");
         groupBuilder.MapDelete(DeleteProgrammeSession, "{id}/sessions/{sessionId}");
+        groupBuilder.MapPatch(UpdateProgrammeSessionInputs, "{id}/sessions/{sessionId}");
         groupBuilder.MapPatch(UpdateProgramme, "{id}");
     }
 
@@ -70,6 +72,13 @@ public class Programmes : IEndpointGroup
     public static async Task<NoContent> UpdateProgramme(ISender sender, int id, UpdateProgrammeCommand command)
     {
         await sender.Send(command with { UserProgrammeId = id });
+        return TypedResults.NoContent();
+    }
+
+    [EndpointSummary("Override a session's prescribed weights and replay downstream progression")]
+    public static async Task<NoContent> UpdateProgrammeSessionInputs(ISender sender, int id, int sessionId, UpdateProgrammeSessionInputsCommand command)
+    {
+        await sender.Send(command with { UserProgrammeId = id, ProgrammeSessionId = sessionId });
         return TypedResults.NoContent();
     }
 }
