@@ -17,6 +17,7 @@
     "@playwright/test": "^1.62.1",
     "@rolldown/binding-win32-x64-msvc": "^1.1.1",
     "@types/node": "^24.0.0",
+    "@vitest/coverage-v8": "^3.2.7",
     "@vue/test-utils": "^2.4.11",
     "happy-dom": "^20.11.1",
     "nswag": "latest",
@@ -33,6 +34,7 @@
     "generate-api": "nswag run /runtime:Net100",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report"

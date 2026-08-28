@@ -6,5 +6,16 @@ export default defineVitestConfig({
     globals: true,
     include: ['**/*.{test,spec}.ts'],
     exclude: ['node_modules', '.nuxt', '.output', 'e2e'],
+    coverage: {
+      provider: 'v8',
+      exclude: [
+        'e2e/**',
+        'lib/web-api-client.ts',
+        'lib/middlewareList.ts',
+        'nuxt.config.ts',
+        'playwright.config.ts',
+        '**/*.config.*',
+      ],
+    },
   },
 })
