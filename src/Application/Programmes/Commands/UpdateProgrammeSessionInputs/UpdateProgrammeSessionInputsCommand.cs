@@ -5,9 +5,10 @@ using LiftAndShift.Application.Programmes.Progression;
 namespace LiftAndShift.Application.Programmes.Commands.UpdateProgrammeSessionInputs;
 
 /// <summary>
-/// Manually overrides a programme session's prescribed inputs (per-lift working weight and/or
-/// consecutive-failure count), then replays every later session's prescription from that new
-/// baseline. Use when a lifter wants to override what the progression algorithm produced.
+/// Manually overrides a logged programme session's prescribed inputs (per-lift working weight
+/// and/or consecutive-failure count), then replays every later session's prescription from that
+/// new baseline. Use when a lifter wants to override what the progression algorithm produced.
+/// Pending sessions are not a valid target.
 /// </summary>
 [Authorize]
 public record UpdateProgrammeSessionInputsCommand : IRequest
@@ -37,7 +38,9 @@ public class UpdateProgrammeSessionInputsCommandHandler : IRequestHandler<Update
 
         Guard.Against.NotFound(request.UserProgrammeId, programme);
 
-        var session = programme.Sessions.FirstOrDefault(s => s.Id == request.ProgrammeSessionId);
+        // Only a logged session (completed, with a linked workout) has a meaningful prescription to override.
+        var session = programme.Sessions
+            .FirstOrDefault(s => s.Id == request.ProgrammeSessionId && s.CompletedDate != null && s.WorkoutSessionId != null);
         Guard.Against.NotFound(request.ProgrammeSessionId, session);
 
         if (request.LiftProgression != null)

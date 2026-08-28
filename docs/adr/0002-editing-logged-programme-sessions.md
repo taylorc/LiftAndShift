@@ -60,10 +60,11 @@ here. Deleting the whole `UserProgramme` cascades and is unrestricted.
 replay.
 
 **5. Direct edits to a session's prescribed weights are a manual override.**
-Editing session _K_'s `LiftProgression` by hand (e.g. "the algorithm deloaded me but I want
-to hold") is allowed via `UpdateProgrammeSessionInputsCommand`; the recalculator then treats
-_K_'s edited values as the baseline for the _K → K+1_ step and replays forward. Last write
-wins between this and a set-data edit on the same session.
+Editing a **logged** session _K_'s `LiftProgression` by hand (e.g. "the algorithm deloaded me
+but I want to hold") is allowed via `UpdateProgrammeSessionInputsCommand`; the recalculator
+then treats _K_'s edited values as the baseline for the _K → K+1_ step and replays forward.
+Pending sessions are not a valid target — their prescription is already whatever the last
+replay produced. Last write wins between this and a set-data edit on the same session.
 
 ## API surface
 

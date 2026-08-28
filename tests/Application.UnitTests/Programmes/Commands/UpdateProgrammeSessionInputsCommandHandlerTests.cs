@@ -152,4 +152,17 @@ public class UpdateProgrammeSessionInputsCommandHandlerTests
             LiftProgression = new() { ["Squat"] = 100m },
         }, CancellationToken.None).AsTask());
     }
+
+    [Test]
+    public async Task ShouldThrowNotFound_WhenSessionIsPendingNotLogged()
+    {
+        var (programme, _, next) = await SeedChainAsync();
+
+        await Should.ThrowAsync<NotFoundException>(() => _handler.Handle(new UpdateProgrammeSessionInputsCommand
+        {
+            UserProgrammeId = programme.Id,
+            ProgrammeSessionId = next.Id,
+            LiftProgression = new() { ["Squat"] = 100m },
+        }, CancellationToken.None).AsTask());
+    }
 }
