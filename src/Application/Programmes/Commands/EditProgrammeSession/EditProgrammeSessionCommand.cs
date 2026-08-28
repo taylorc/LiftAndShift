@@ -46,7 +46,7 @@ public class EditProgrammeSessionCommandHandler : IRequestHandler<EditProgrammeS
 
         ReplaceSetData(workout, request.Exercises);
 
-        await ReplayFrom(programme, logged, cancellationToken);
+        await ProgrammeSessionChainReplayer.ReplayForwardAsync(_context, programme, logged.Id, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -85,81 +85,6 @@ public class EditProgrammeSessionCommandHandler : IRequestHandler<EditProgrammeS
             workout.Exercises.Add(workoutExercise);
         }
     }
-
-    /// <summary>
-    /// Re-derives <see cref="ProgrammeSession.LiftProgression"/> and
-    /// <see cref="ProgrammeSession.ConsecutiveFailures"/> for every session after
-    /// <paramref name="edited"/>, folding forward from the edited session's own prescription
-    /// through each later session's logged outcome. The edited session's own prescription is
-    /// left untouched.
-    /// </summary>
-    private async Task ReplayFrom(UserProgramme programme, ProgrammeSession edited, CancellationToken cancellationToken)
-    {
-        var ordered = programme.Sessions.OrderBy(s => s.Id).ToList();
-        var editIndex = ordered.FindIndex(s => s.Id == edited.Id);
-        if (editIndex == ordered.Count - 1)
-        {
-            return; // nothing downstream to replay
-        }
-
-        // The edited session's workout is already updated in memory; load the rest.
-        var downstreamWorkoutIds = ordered.Skip(editIndex + 1)
-            .Where(s => s.WorkoutSessionId != null)
-            .Select(s => s.WorkoutSessionId!.Value)
-            .ToList();
-
-        var editedWorkout = await _context.WorkoutSessions
-            .Include(w => w.Exercises).ThenInclude(e => e.Sets)
-            .FirstAsync(w => w.Id == edited.WorkoutSessionId!.Value, cancellationToken);
-
-        var workoutsBySessionId = new Dictionary<int, WorkoutSession> { [edited.Id] = editedWorkout };
-        if (downstreamWorkoutIds.Count > 0)
-        {
-            var loadedWorkouts = await _context.WorkoutSessions
-                .Include(w => w.Exercises).ThenInclude(e => e.Sets)
-                .Where(w => downstreamWorkoutIds.Contains(w.Id))
-                .ToListAsync(cancellationToken);
-
-            foreach (var w in loadedWorkouts)
-            {
-                workoutsBySessionId[w.ProgrammeSessionId!.Value] = w;
-            }
-        }
-
-        var exerciseIds = workoutsBySessionId.Values
-            .SelectMany(w => w.Exercises.Select(e => e.ExerciseId))
-            .Distinct()
-            .ToList();
-        var liftNames = await _context.Exercises
-            .Where(e => exerciseIds.Contains(e.Id))
-            .ToDictionaryAsync(e => e.Id, e => e.Name, cancellationToken);
-
-        var weights = new Dictionary<string, decimal>(ordered[editIndex].LiftProgression);
-        var failures = new Dictionary<string, int>(ordered[editIndex].ConsecutiveFailures);
-
-        for (var i = editIndex; i < ordered.Count - 1; i++)
-        {
-            var loggedLifts = workoutsBySessionId.TryGetValue(ordered[i].Id, out var w)
-                ? ToLoggedLifts(w, liftNames)
-                : new List<LoggedLift>();
-
-            var nextState = ProgrammeProgressionRecalculator.NextSessionState(weights, failures, loggedLifts);
-
-            ordered[i + 1].LiftProgression = nextState.Weights;
-            ordered[i + 1].ConsecutiveFailures = nextState.Failures;
-
-            weights = nextState.Weights;
-            failures = nextState.Failures;
-        }
-    }
-
-    private static List<LoggedLift> ToLoggedLifts(WorkoutSession workout, IReadOnlyDictionary<int, string> liftNames) =>
-        workout.Exercises
-            .Where(e => liftNames.ContainsKey(e.ExerciseId))
-            .Select(e => new LoggedLift(
-                liftNames[e.ExerciseId],
-                e.Sets.Select(s => new LoggedSet(s.SetType, s.CompletedReps, s.Reps)).ToList()))
-            .ToList();
 }
 
 public class EditProgrammeSessionCommandValidator : AbstractValidator<EditProgrammeSessionCommand>
