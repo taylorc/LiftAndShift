@@ -45,12 +45,20 @@ public class UpdateProgrammeSessionInputsCommandHandler : IRequestHandler<Update
 
         if (request.LiftProgression != null)
         {
-            session.LiftProgression = new Dictionary<string, decimal>(request.LiftProgression);
+            session.LiftProgression = new Dictionary<string, decimal>(session.LiftProgression);
+            foreach (var (liftName, weight) in request.LiftProgression)
+            {
+                session.LiftProgression[liftName] = weight;
+            }
         }
 
         if (request.ConsecutiveFailures != null)
         {
-            session.ConsecutiveFailures = new Dictionary<string, int>(request.ConsecutiveFailures);
+            session.ConsecutiveFailures = new Dictionary<string, int>(session.ConsecutiveFailures);
+            foreach (var (liftName, failures) in request.ConsecutiveFailures)
+            {
+                session.ConsecutiveFailures[liftName] = failures;
+            }
         }
 
         await ProgrammeSessionChainReplayer.ReplayForwardAsync(_context, programme, session.Id, cancellationToken);
@@ -70,5 +78,13 @@ public class UpdateProgrammeSessionInputsCommandValidator : AbstractValidator<Up
         RuleFor(x => x)
             .Must(x => x.LiftProgression != null || x.ConsecutiveFailures != null)
             .WithMessage("Provide LiftProgression, ConsecutiveFailures, or both.");
+        RuleForEach(x => x.LiftProgression)
+            .Must(kvp => kvp.Value > 0)
+            .WithMessage("LiftProgression weights must be greater than 0.")
+            .When(x => x.LiftProgression != null);
+        RuleForEach(x => x.ConsecutiveFailures)
+            .Must(kvp => kvp.Value >= 0)
+            .WithMessage("ConsecutiveFailures values must not be negative.")
+            .When(x => x.ConsecutiveFailures != null);
     }
 }

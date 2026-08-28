@@ -32,6 +32,7 @@
               </select>
             </label>
             <button type="submit" :aria-busy="savingMeta">Save details</button>
+            <p v-if="metaError" style="color: var(--pico-del-color);">{{ metaError }}</p>
           </form>
         </details>
       </article>
@@ -97,6 +98,7 @@
             </tr>
           </tbody>
         </table>
+        <p v-if="deleteError" style="color: var(--pico-del-color);">{{ deleteError }}</p>
       </section>
     </div>
 
@@ -141,6 +143,8 @@ const adopting = ref<string | null>(null)
 const starting = ref(false)
 const deleting = ref(false)
 const savingMeta = ref(false)
+const deleteError = ref('')
+const metaError = ref('')
 const router = useRouter()
 
 const STATUS_VALUE: Record<string, number> = { Active: 0, Paused: 1, Abandoned: 2 }
@@ -164,8 +168,11 @@ onMounted(async () => {
 
 async function removeLatest(sessionId: number) {
   deleting.value = true
+  deleteError.value = ''
   try {
     await store.deleteProgrammeSession(store.activeProgramme!.id!, sessionId)
+  } catch (e: any) {
+    deleteError.value = e?.message ?? 'Failed to delete session'
   } finally {
     deleting.value = false
   }
@@ -173,11 +180,14 @@ async function removeLatest(sessionId: number) {
 
 async function saveMeta() {
   savingMeta.value = true
+  metaError.value = ''
   try {
     await store.updateProgramme(store.activeProgramme!.id!, {
       startedAt: meta.startedAt ? new Date(meta.startedAt) : undefined,
       status: meta.status,
     })
+  } catch (e: any) {
+    metaError.value = e?.message ?? 'Failed to save changes'
   } finally {
     savingMeta.value = false
   }

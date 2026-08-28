@@ -125,6 +125,25 @@ public class UpdateProgrammeSessionInputsCommandHandlerTests
     }
 
     [Test]
+    public async Task ShouldPreserveOtherLifts_WhenOverridingOneLiftsProgression()
+    {
+        var (programme, first, _) = await SeedChainAsync();
+        first.LiftProgression["Bench"] = 40m;
+        await _context.SaveChangesAsync(CancellationToken.None);
+
+        await _handler.Handle(new UpdateProgrammeSessionInputsCommand
+        {
+            UserProgrammeId = programme.Id,
+            ProgrammeSessionId = first.Id,
+            LiftProgression = new() { ["Squat"] = 100m },
+        }, CancellationToken.None);
+
+        var updated = (await _context.ProgrammeSessions.FindAsync(first.Id))!;
+        updated.LiftProgression["Squat"].ShouldBe(100m);
+        updated.LiftProgression["Bench"].ShouldBe(40m);
+    }
+
+    [Test]
     public async Task ShouldOverrideConsecutiveFailures_WhenProvided()
     {
         var (programme, first, _) = await SeedChainAsync();
