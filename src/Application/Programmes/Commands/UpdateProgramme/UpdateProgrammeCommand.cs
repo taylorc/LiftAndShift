@@ -52,5 +52,8 @@ public class UpdateProgrammeCommandValidator : AbstractValidator<UpdateProgramme
     {
         RuleFor(x => x.UserProgrammeId).GreaterThan(0);
         RuleFor(x => x.Status!.Value).IsInEnum().When(x => x.Status.HasValue);
+        RuleFor(x => x)
+            .Must(x => x.StartedAt.HasValue || x.Status.HasValue)
+            .WithMessage("Provide StartedAt, Status, or both.");
     }
 }
