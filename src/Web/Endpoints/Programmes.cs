@@ -2,6 +2,7 @@ using LiftAndShift.Application.Programmes.Commands.AdoptProgramme;
 using LiftAndShift.Application.Programmes.Commands.EditProgrammeSession;
 using LiftAndShift.Application.Programmes.Commands.LogProgrammeSession;
 using LiftAndShift.Application.Programmes.Queries.GetActiveProgramme;
+using LiftAndShift.Application.Programmes.Queries.GetProgrammeSessions;
 using LiftAndShift.Application.Programmes.Queries.GetProgrammeTemplates;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -15,6 +16,7 @@ public class Programmes : IEndpointGroup
 
         groupBuilder.MapGet(GetProgrammeTemplates, "templates");
         groupBuilder.MapGet(GetActiveProgramme, "active");
+        groupBuilder.MapGet(GetProgrammeSessions, "{id}/sessions");
         groupBuilder.MapPost(AdoptProgramme, "adopt");
         groupBuilder.MapPost(LogProgrammeSession, "{id}/log-session");
         groupBuilder.MapPut(EditProgrammeSession, "{id}/sessions/{sessionId}");
@@ -27,6 +29,10 @@ public class Programmes : IEndpointGroup
     [EndpointSummary("Get active programme")]
     public static async Task<Ok<ActiveProgrammeDto>> GetActiveProgramme(ISender sender)
         => TypedResults.Ok(await sender.Send(new GetActiveProgrammeQuery()));
+
+    [EndpointSummary("Get the logged sessions of a programme")]
+    public static async Task<Ok<List<LoggedProgrammeSessionDto>>> GetProgrammeSessions(ISender sender, int id)
+        => TypedResults.Ok(await sender.Send(new GetProgrammeSessionsQuery(id)));
 
     [EndpointSummary("Adopt a programme")]
     public static async Task<Created<int>> AdoptProgramme(ISender sender, AdoptProgrammeCommand command)
