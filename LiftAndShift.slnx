@@ -19,6 +19,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AcceptanceTestHost/AcceptanceTestHost.csproj" />
+    <Project Path="tests/Application.ArchitectureTests/Application.ArchitectureTests.csproj" />
     <Project Path="tests/Application.FunctionalTests/Application.FunctionalTests.csproj" />
     <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" />
     <Project Path="tests/Domain.UnitTests/Domain.UnitTests.csproj" />
