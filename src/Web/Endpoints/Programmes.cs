@@ -1,4 +1,5 @@
 using LiftAndShift.Application.Programmes.Commands.AdoptProgramme;
+using LiftAndShift.Application.Programmes.Commands.EditProgrammeSession;
 using LiftAndShift.Application.Programmes.Commands.LogProgrammeSession;
 using LiftAndShift.Application.Programmes.Queries.GetActiveProgramme;
 using LiftAndShift.Application.Programmes.Queries.GetProgrammeTemplates;
@@ -16,6 +17,7 @@ public class Programmes : IEndpointGroup
         groupBuilder.MapGet(GetActiveProgramme, "active");
         groupBuilder.MapPost(AdoptProgramme, "adopt");
         groupBuilder.MapPost(LogProgrammeSession, "{id}/log-session");
+        groupBuilder.MapPut(EditProgrammeSession, "{id}/sessions/{sessionId}");
     }
 
     [EndpointSummary("Get available programme templates")]
@@ -38,5 +40,12 @@ public class Programmes : IEndpointGroup
     {
         var workoutId = await sender.Send(command with { UserProgrammeId = id });
         return TypedResults.Created($"/api/Workouts/{workoutId}", workoutId);
+    }
+
+    [EndpointSummary("Edit a logged programme session and replay downstream progression")]
+    public static async Task<NoContent> EditProgrammeSession(ISender sender, int id, int sessionId, EditProgrammeSessionCommand command)
+    {
+        await sender.Send(command with { UserProgrammeId = id, ProgrammeSessionId = sessionId });
+        return TypedResults.NoContent();
     }
 }
