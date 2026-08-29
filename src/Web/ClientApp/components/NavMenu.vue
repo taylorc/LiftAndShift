@@ -30,7 +30,6 @@ watch(
     <li><NuxtLink to="/programme">Programme</NuxtLink></li>
     <li><NuxtLink to="/settings">Settings</NuxtLink></li>
     <li><a href="#" @click.prevent="handleLogout">Log out</a></li>
-    <li><NuxtLink to="/usermanagement">Account</NuxtLink></li>
   </template>
   <template v-else>
     <li><NuxtLink to="/login">Log in</NuxtLink></li>
