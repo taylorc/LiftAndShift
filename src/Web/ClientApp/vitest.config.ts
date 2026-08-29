@@ -8,7 +8,9 @@ export default defineVitestConfig({
     exclude: ['node_modules', '.nuxt', '.output', 'e2e'],
     coverage: {
       provider: 'v8',
+      reporter: ['text', 'json-summary'],
       exclude: [
+        '.nuxt/**',
         'e2e/**',
         'lib/web-api-client.ts',
         'lib/middlewareList.ts',
