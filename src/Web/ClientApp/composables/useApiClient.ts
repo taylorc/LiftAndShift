@@ -1,9 +1,6 @@
 import {
   UsersClient,
   OnboardingClient,
-  TodoListsClient,
-  TodoItemsClient,
-  WeatherForecastsClient,
   ExercisesClient,
   WorkoutsClient,
   ProgrammesClient,
@@ -42,9 +39,6 @@ function makeClient<T>(Ctor: new (base: string, http: any) => T): T {
 
 export const useUsersClient = () => makeClient(UsersClient)
 export const useOnboardingClient = () => makeClient(OnboardingClient)
-export const useTodoListsClient = () => makeClient(TodoListsClient)
-export const useTodoItemsClient = () => makeClient(TodoItemsClient)
-export const useWeatherForecastsClient = () => makeClient(WeatherForecastsClient)
 export const useExercisesClient = () => makeClient(ExercisesClient)
 export const useWorkoutsClient = () => makeClient(WorkoutsClient)
 export const useProgrammesClient = () => makeClient(ProgrammesClient)

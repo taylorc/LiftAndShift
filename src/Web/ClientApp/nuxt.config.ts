@@ -24,8 +24,6 @@ export default defineNuxtConfig({
           '/api/**': { proxy: `${apiTarget}/api/**` },
           '/openapi/**': { proxy: `${apiTarget}/openapi/**` },
           '/scalar/**': { proxy: `${apiTarget}/scalar/**` },
-          '/weatherforecast': { proxy: `${apiTarget}/weatherforecast` },
-          '/WeatherForecast': { proxy: `${apiTarget}/WeatherForecast` },
         }
       : {},
   },

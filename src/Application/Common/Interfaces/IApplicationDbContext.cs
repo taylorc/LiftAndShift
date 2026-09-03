@@ -4,10 +4,6 @@ namespace LiftAndShift.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {
-    DbSet<TodoList> TodoLists { get; }
-
-    DbSet<TodoItem> TodoItems { get; }
-
     DbSet<Exercise> Exercises { get; }
 
     DbSet<ExerciseCategory> ExerciseCategories { get; }

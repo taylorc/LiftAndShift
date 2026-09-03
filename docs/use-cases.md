@@ -47,8 +47,6 @@ Each `Application` feature is a Mediator command/query; each `Web` group exposes
 
 - **Exercises** — `CreateExerciseCommand`, `DeleteExerciseCommand`, `GetExercisesQuery`: manage the exercise
   library (seeded Big 5 lifts + custom user exercises). Backs the exercise picker used when logging workouts.
-- **TodoLists / TodoItems / WeatherForecasts** — retained from the Clean Architecture template as reference
-  vertical slices; not part of the lifting product.
 
 ## Cross-cutting pipeline
 

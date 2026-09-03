@@ -1,9 +1,6 @@
 ﻿using System.Reflection;
 using LiftAndShift.Application.Calculators;
 using LiftAndShift.Application.Common.Behaviours;
-using LiftAndShift.Application.Common.Models;
-using LiftAndShift.Application.TodoLists.Queries.GetTodos;
-using LiftAndShift.Domain.Entities;
 using Mapster;
 using Mediator;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,13 +17,6 @@ public static class DependencyInjection
         // Register calculator services
         builder.Services.AddSingleton<WarmupCalculatorService>();
         builder.Services.AddSingleton<PlateCalculatorService>();
-
-        // Register all mappings
-        config.NewConfig<TodoList, TodoListDto>();
-        config.NewConfig<TodoItem, TodoItemDto>()
-            .Map(dest => dest.Priority, src => (int)src.Priority);
-        config.NewConfig<TodoList, LookupDto>();
-        config.NewConfig<TodoItem, LookupDto>();
 
         builder.Services.AddSingleton(config);
 

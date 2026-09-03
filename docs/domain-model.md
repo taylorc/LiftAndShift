@@ -16,8 +16,6 @@ WorkoutSession 1───* WorkoutExercise ──1─ Exercise
 
 PersonalRecord ──1─ Exercise
 
-TodoList 1───* TodoItem
-
 BodyMetric, ExerciseCategory — standalone (no navigation properties)
 ```
 
@@ -124,11 +122,6 @@ property.
 | `WeightKg` | `decimal` | |
 | `Notes` | `string?` | |
 
-### Carried-over template entities (not lifting-specific)
-
-**TodoList** / **TodoItem** — retained from the Clean Architecture template as a reference vertical slice; not part
-of the lifting domain. `TodoList 1───* TodoItem`; completing a `TodoItem` raises `TodoItemCompletedEvent`.
-
 ## Enums
 
 | Enum | Values |
@@ -140,7 +133,6 @@ of the lifting domain. `TodoList 1───* TodoItem`; completing a `TodoItem` 
 | `MuscleGroup` | `Legs`, `Back`, `Chest`, `Shoulders`, `Arms`, `Core`, `Full` |
 | `EquipmentType` | `Barbell`, `Dumbbell`, `Bodyweight`, `Machine`, `Cable`, `Kettlebell` |
 | `MovementPattern` | `Squat`, `Hinge`, `Push`, `Pull`, `Carry` |
-| `PriorityLevel` | `None`, `Low`, `Medium`, `High` (Todo template) |
 
 Two enums are modeled as [Ardalis SmartEnum](https://github.com/ardalis/SmartEnum) rather than plain C# enums,
 because they carry lift-specific programme logic beyond a bare integer tag:
@@ -152,14 +144,10 @@ because they carry lift-specific programme logic beyond a bare integer tag:
 
 ## Value objects
 
-**Colour** (`src/Domain/ValueObjects/Colour.cs`) — carried over from the template for `TodoList.Colour`. Wraps a
-hex `Code` string, validated against a fixed palette (`Red`, `Orange`, `Green`, `Teal`, `Blue`, `Purple`, `Grey`).
-Not used by the lifting domain.
+The `ValueObject` base class (`src/Domain/Common/ValueObject.cs`) is available but no lifting-domain value
+objects are defined yet.
 
 ## Domain events
-
-**TodoItemCompletedEvent** — raised when `TodoItem.Done` transitions `false → true`; handled by
-`Application/TodoItems/EventHandlers/LogTodoItemCompleted`.
 
 No lifting-domain events exist yet (e.g. nothing fires today when a `WorkoutSet` is completed, a `WorkoutSession`
 is completed, or linear progression triggers a deload). See [use-cases.md](use-cases.md) for where that logic
