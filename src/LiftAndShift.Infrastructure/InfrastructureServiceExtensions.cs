@@ -3,6 +3,7 @@ using LiftAndShift.Core.Services;
 using LiftAndShift.Infrastructure.Data;
 using LiftAndShift.Infrastructure.Data.Queries;
 using LiftAndShift.UseCases.Contributors.List;
+using LiftAndShift.UseCases.FamilyMembers.List;
 
 namespace LiftAndShift.Infrastructure;
 public static class InfrastructureServiceExtensions
@@ -28,7 +29,8 @@ public static class InfrastructureServiceExtensions
     services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>))
            .AddScoped(typeof(IReadRepository<>), typeof(EfRepository<>))
            .AddScoped<IListContributorsQueryService, ListContributorsQueryService>()
-           .AddScoped<IDeleteContributorService, DeleteContributorService>();
+           .AddScoped<IDeleteContributorService, DeleteContributorService>()
+           .AddScoped<IListFamilyMembersQueryService, ListFamilyMembersQueryService>();
 
     logger.LogInformation("{Project} services registered", "Infrastructure");
 

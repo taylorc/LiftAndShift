@@ -1,7 +1,12 @@
 ﻿global using System.Runtime.CompilerServices;
 global using Ardalis.SharedKernel;
 global using LiftAndShift.Core.ContributorAggregate;
+global using LiftAndShift.Core.FamilyMemberAggregate;
 global using LiftAndShift.UseCases.Contributors.Create;
+global using LiftAndShift.UseCases.FamilyMembers.Create;
+global using LiftAndShift.UseCases.FamilyMembers.Get;
+global using LiftAndShift.UseCases.FamilyMembers.Update;
+global using LiftAndShift.UseCases.FamilyMembers.Delete;
 global using Shouldly;
 global using Mediator;
 global using Microsoft.Extensions.Logging;

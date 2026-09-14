@@ -40,4 +40,9 @@ public abstract class BaseEfRepoTestFixture
   {
     return new EfRepository<Contributor>(_dbContext);
   }
+
+  protected EfRepository<LiftAndShift.Core.FamilyMemberAggregate.FamilyMember> GetFamilyMemberRepository()
+  {
+    return new EfRepository<LiftAndShift.Core.FamilyMemberAggregate.FamilyMember>(_dbContext);
+  }
 }
