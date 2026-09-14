@@ -1,0 +1,3 @@
+# No authentication — PIN-based Family Member identity
+
+LiftAndShift is rebuilt as an internally-hosted family app rather than a product for external users. We dropped ASP.NET Identity, registration, and login entirely in favor of a lightweight PIN each Family Member enters to select their own identity on a shared device — the PIN prevents accidental cross-account logging, not unauthorized access. Adding a new Family Member is ungated. This also means the old ambitions around GDPR/CCPA compliance, offline PWA sync, and social login (Google/Apple) no longer apply and were dropped along with them, since they only made sense for an app with external, untrusted users.

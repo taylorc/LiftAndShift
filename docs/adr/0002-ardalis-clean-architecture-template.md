@@ -1,0 +1,3 @@
+# Rebuild backend on Ardalis.CleanArchitecture.Template
+
+The backend is rebuilt from scratch on `Ardalis.CleanArchitecture.Template`, replacing the previous jasontaylordev-based Clean Architecture template. We adopt this template's own conventions as-is — xUnit (not NUnit), NetArchTest for architecture boundary tests, Testcontainers-based integration tests, and FastEndpoints/Ardalis.ApiEndpoints in place of raw minimal-API endpoint groups — except for one deliberate deviation: we use the source-generated `Mediator` library instead of the template's default `MediatR`, carrying that choice forward from the old codebase to avoid MediatR's reflection-based dispatch.
