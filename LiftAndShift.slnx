@@ -1,0 +1,33 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".template.config/template.json" />
+    <File Path="CleanArchitecture.nuspec" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/LiftAndShift.Core/LiftAndShift.Core.csproj" />
+    <Project Path="src/LiftAndShift.Infrastructure/LiftAndShift.Infrastructure.csproj" />
+    <Project Path="src/LiftAndShift.UseCases/LiftAndShift.UseCases.csproj" />
+    <Project Path="src/LiftAndShift.Web/LiftAndShift.Web.csproj" />
+  </Folder>
+  <Folder Name="/src/_aspire/">
+    <Project Path="src/LiftAndShift.AspireHost/LiftAndShift.AspireHost.csproj" />
+    <Project Path="src/LiftAndShift.ServiceDefaults/LiftAndShift.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LiftAndShift.FunctionalTests/LiftAndShift.FunctionalTests.csproj">
+      <BuildDependency Project="src/LiftAndShift.Web/LiftAndShift.Web.csproj" />
+    </Project>
+    <Project Path="tests/LiftAndShift.IntegrationTests/LiftAndShift.IntegrationTests.csproj">
+      <BuildDependency Project="src/LiftAndShift.Infrastructure/LiftAndShift.Infrastructure.csproj" />
+    </Project>
+    <Project Path="tests/LiftAndShift.UnitTests/LiftAndShift.UnitTests.csproj" />
+  </Folder>
+</Solution>

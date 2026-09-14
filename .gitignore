@@ -1,0 +1,21 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.user
+
+# Rider / JetBrains
+.idea/
+
+# VS Code
+.vscode/
+
+# SQLite runtime data
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# User secrets / local env
+*.env
