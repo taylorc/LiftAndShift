@@ -1,11 +1,13 @@
 ﻿using LiftAndShift.Core.ContributorAggregate;
 using LiftAndShift.Core.FamilyMemberAggregate;
+using LiftAndShift.Core.ProgrammeAggregate;
 
 namespace LiftAndShift.Infrastructure.Data;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
   public DbSet<Contributor> Contributors => Set<Contributor>();
   public DbSet<FamilyMember> FamilyMembers => Set<FamilyMember>();
+  public DbSet<Programme> Programmes => Set<Programme>();
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
