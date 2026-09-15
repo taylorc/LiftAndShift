@@ -7,7 +7,7 @@ using LiftAndShift.Web.Programmes;
 namespace LiftAndShift.FunctionalTests.ApiEndpoints;
 
 [Collection("Sequential")]
-public class ProgrammeApiEndpoints(CustomWebApplicationFactory<Program> factory) : IClassFixture<CustomWebApplicationFactory<Program>>
+public class ProgrammeApiEndpointsTests(CustomWebApplicationFactory<Program> factory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
   private readonly HttpClient _client = factory.CreateClient();
 

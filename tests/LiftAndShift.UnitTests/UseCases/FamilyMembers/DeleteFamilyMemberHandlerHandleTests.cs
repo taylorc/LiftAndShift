@@ -1,11 +1,11 @@
 namespace LiftAndShift.UnitTests.UseCases.FamilyMembers;
 
-public class DeleteFamilyMemberHandlerHandle
+public class DeleteFamilyMemberHandlerHandleTests
 {
   private readonly IRepository<FamilyMember> _repository = Substitute.For<IRepository<FamilyMember>>();
   private readonly DeleteFamilyMemberHandler _handler;
 
-  public DeleteFamilyMemberHandlerHandle()
+  public DeleteFamilyMemberHandlerHandleTests()
   {
     _handler = new DeleteFamilyMemberHandler(_repository);
   }

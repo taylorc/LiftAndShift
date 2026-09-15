@@ -2,7 +2,7 @@
 
 namespace LiftAndShift.IntegrationTests.Data;
 
-public class EfRepositoryAdd : BaseEfRepoTestFixture
+public class EfRepositoryAddTests : BaseEfRepoTestFixture
 {
   [Fact]
   public async Task AddsContributorAndSetsId()

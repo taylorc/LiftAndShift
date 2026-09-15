@@ -2,7 +2,7 @@
 
 namespace LiftAndShift.UnitTests.Core.Services;
 
-public class DeleteContributorService_DeleteContributor
+public class DeleteContributorService_DeleteContributorTests
 {
   private readonly IRepository<Contributor> _repository = Substitute.For<IRepository<Contributor>>();
   private readonly IMediator _mediator = Substitute.For<IMediator>();
@@ -10,7 +10,7 @@ public class DeleteContributorService_DeleteContributor
 
   private readonly DeleteContributorService _service;
 
-  public DeleteContributorService_DeleteContributor()
+  public DeleteContributorService_DeleteContributorTests()
   {
     _service = new DeleteContributorService(_repository, _mediator, _logger);
   }

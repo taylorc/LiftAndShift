@@ -2,14 +2,14 @@ using Ardalis.Specification;
 
 namespace LiftAndShift.UnitTests.UseCases.FamilyMembers;
 
-public class GetFamilyMemberHandlerHandle
+public class GetFamilyMemberHandlerHandleTests
 {
   private readonly FamilyMemberName _testName = FamilyMemberName.From("Ada");
   private readonly Pin _testPin = Pin.From("1234");
   private readonly IReadRepository<FamilyMember> _repository = Substitute.For<IReadRepository<FamilyMember>>();
   private readonly GetFamilyMemberHandler _handler;
 
-  public GetFamilyMemberHandlerHandle()
+  public GetFamilyMemberHandlerHandleTests()
   {
     _handler = new GetFamilyMemberHandler(_repository);
   }

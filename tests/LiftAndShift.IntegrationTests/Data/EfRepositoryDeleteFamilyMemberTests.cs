@@ -2,7 +2,7 @@ using LiftAndShift.Core.FamilyMemberAggregate;
 
 namespace LiftAndShift.IntegrationTests.Data;
 
-public class EfRepositoryDeleteFamilyMember : BaseEfRepoTestFixture
+public class EfRepositoryDeleteFamilyMemberTests : BaseEfRepoTestFixture
 {
   [Fact]
   public async Task RemovesFamilyMember()

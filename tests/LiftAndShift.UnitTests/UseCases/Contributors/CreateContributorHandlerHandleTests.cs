@@ -1,12 +1,12 @@
 ﻿namespace LiftAndShift.UnitTests.UseCases.Contributors;
 
-public class CreateContributorHandlerHandle
+public class CreateContributorHandlerHandleTests
 {
   private readonly ContributorName _testName = ContributorName.From("test name");
   private readonly IRepository<Contributor> _repository = Substitute.For<IRepository<Contributor>>();
   private CreateContributorHandler _handler;
 
-  public CreateContributorHandlerHandle()
+  public CreateContributorHandlerHandleTests()
   {
     _handler = new CreateContributorHandler(_repository);
   }

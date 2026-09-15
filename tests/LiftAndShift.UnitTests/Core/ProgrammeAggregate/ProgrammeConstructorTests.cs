@@ -1,6 +1,6 @@
 namespace LiftAndShift.UnitTests.Core.ProgrammeAggregate;
 
-public class ProgrammeConstructor
+public class ProgrammeConstructorTests
 {
   private readonly FamilyMemberId _testFamilyMemberId = FamilyMemberId.From(1);
   private readonly TrainingPhase _testTrainingPhase = TrainingPhase.From(1);

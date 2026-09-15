@@ -1,6 +1,6 @@
 namespace LiftAndShift.UnitTests.UseCases.FamilyMembers;
 
-public class CreateFamilyMemberHandlerHandle
+public class CreateFamilyMemberHandlerHandleTests
 {
   private readonly FamilyMemberName _testName = FamilyMemberName.From("Ada");
   private readonly Pin _testPin = Pin.From("1234");
@@ -8,7 +8,7 @@ public class CreateFamilyMemberHandlerHandle
   private readonly IRepository<Programme> _programmeRepository = Substitute.For<IRepository<Programme>>();
   private readonly CreateFamilyMemberHandler _handler;
 
-  public CreateFamilyMemberHandlerHandle()
+  public CreateFamilyMemberHandlerHandleTests()
   {
     _handler = new CreateFamilyMemberHandler(_familyMemberRepository, _programmeRepository);
   }

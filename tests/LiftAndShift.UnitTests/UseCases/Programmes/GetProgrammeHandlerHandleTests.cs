@@ -2,13 +2,13 @@ using Ardalis.Specification;
 
 namespace LiftAndShift.UnitTests.UseCases.Programmes;
 
-public class GetProgrammeHandlerHandle
+public class GetProgrammeHandlerHandleTests
 {
   private readonly FamilyMemberId _testFamilyMemberId = FamilyMemberId.From(1);
   private readonly IReadRepository<LiftAndShift.Core.ProgrammeAggregate.Programme> _repository = Substitute.For<IReadRepository<LiftAndShift.Core.ProgrammeAggregate.Programme>>();
   private readonly GetProgrammeHandler _handler;
 
-  public GetProgrammeHandlerHandle()
+  public GetProgrammeHandlerHandleTests()
   {
     _handler = new GetProgrammeHandler(_repository);
   }

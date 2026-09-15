@@ -2,7 +2,7 @@
 
 namespace LiftAndShift.IntegrationTests.Data;
 
-public class EfRepositoryDelete : BaseEfRepoTestFixture
+public class EfRepositoryDeleteTests : BaseEfRepoTestFixture
 {
   [Fact]
   public async Task DeletesItemAfterAddingIt()

@@ -1,6 +1,6 @@
 ﻿namespace LiftAndShift.UnitTests.Core.ContributorAggregate;
 
-public class ContributorConstructor
+public class ContributorConstructorTests
 {
   private readonly ContributorName _testName = ContributorName.From("test name");
   private Contributor? _testContributor;

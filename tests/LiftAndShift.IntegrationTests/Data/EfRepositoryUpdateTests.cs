@@ -2,7 +2,7 @@
 
 namespace LiftAndShift.IntegrationTests.Data;
 
-public class EfRepositoryUpdate : BaseEfRepoTestFixture
+public class EfRepositoryUpdateTests : BaseEfRepoTestFixture
 {
   [Fact]
   public async Task UpdatesItemAfterAddingIt()

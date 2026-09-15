@@ -1,6 +1,6 @@
 namespace LiftAndShift.UnitTests.Core.ProgrammeAggregate;
 
-public class TrainingPhaseFrom
+public class TrainingPhaseFromTests
 {
   [Theory]
   [InlineData(1)]

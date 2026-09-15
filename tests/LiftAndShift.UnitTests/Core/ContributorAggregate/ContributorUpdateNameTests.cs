@@ -2,7 +2,7 @@
 
 namespace LiftAndShift.UnitTests.Core.ContributorAggregate;
 
-public class ContributorUpdateName
+public class ContributorUpdateNameTests
 {
   private readonly ContributorName _initialName = ContributorName.From("initial name");
   private readonly ContributorName _newName = ContributorName.From("new name");

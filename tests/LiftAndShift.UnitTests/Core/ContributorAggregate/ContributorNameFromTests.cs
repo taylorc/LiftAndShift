@@ -1,6 +1,6 @@
 ﻿namespace LiftAndShift.UnitTests.Core.ContributorAggregate;
 
-public class ContributorNameFrom
+public class ContributorNameFromTests
 {
   [Fact]
   public void CreatesGivenValidValue()

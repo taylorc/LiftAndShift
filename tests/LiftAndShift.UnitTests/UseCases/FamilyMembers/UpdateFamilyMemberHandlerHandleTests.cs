@@ -1,11 +1,11 @@
 namespace LiftAndShift.UnitTests.UseCases.FamilyMembers;
 
-public class UpdateFamilyMemberHandlerHandle
+public class UpdateFamilyMemberHandlerHandleTests
 {
   private readonly IRepository<FamilyMember> _repository = Substitute.For<IRepository<FamilyMember>>();
   private readonly UpdateFamilyMemberHandler _handler;
 
-  public UpdateFamilyMemberHandlerHandle()
+  public UpdateFamilyMemberHandlerHandleTests()
   {
     _handler = new UpdateFamilyMemberHandler(_repository);
   }

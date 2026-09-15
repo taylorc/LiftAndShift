@@ -1,6 +1,6 @@
 namespace LiftAndShift.UnitTests.Core.FamilyMemberAggregate;
 
-public class PinFrom
+public class PinFromTests
 {
   [Fact]
   public void CreatesGivenValidValue()

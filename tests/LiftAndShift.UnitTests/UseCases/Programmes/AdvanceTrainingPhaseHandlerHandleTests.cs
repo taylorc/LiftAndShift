@@ -2,13 +2,13 @@ using Ardalis.Specification;
 
 namespace LiftAndShift.UnitTests.UseCases.Programmes;
 
-public class AdvanceTrainingPhaseHandlerHandle
+public class AdvanceTrainingPhaseHandlerHandleTests
 {
   private readonly FamilyMemberId _testFamilyMemberId = FamilyMemberId.From(1);
   private readonly IRepository<LiftAndShift.Core.ProgrammeAggregate.Programme> _repository = Substitute.For<IRepository<LiftAndShift.Core.ProgrammeAggregate.Programme>>();
   private readonly AdvanceTrainingPhaseHandler _handler;
 
-  public AdvanceTrainingPhaseHandlerHandle()
+  public AdvanceTrainingPhaseHandlerHandleTests()
   {
     _handler = new AdvanceTrainingPhaseHandler(_repository);
   }

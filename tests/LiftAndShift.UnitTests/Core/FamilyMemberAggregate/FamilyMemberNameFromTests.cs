@@ -1,6 +1,6 @@
 namespace LiftAndShift.UnitTests.Core.FamilyMemberAggregate;
 
-public class FamilyMemberNameFrom
+public class FamilyMemberNameFromTests
 {
   [Fact]
   public void CreatesGivenValidValue()

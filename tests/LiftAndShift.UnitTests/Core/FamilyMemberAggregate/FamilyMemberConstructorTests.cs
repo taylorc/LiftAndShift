@@ -1,6 +1,6 @@
 namespace LiftAndShift.UnitTests.Core.FamilyMemberAggregate;
 
-public class FamilyMemberConstructor
+public class FamilyMemberConstructorTests
 {
   private readonly FamilyMemberName _testName = FamilyMemberName.From("Ada");
   private readonly Pin _testPin = Pin.From("1234");

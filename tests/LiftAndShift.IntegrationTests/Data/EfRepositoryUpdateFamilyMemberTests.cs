@@ -2,7 +2,7 @@ using LiftAndShift.Core.FamilyMemberAggregate;
 
 namespace LiftAndShift.IntegrationTests.Data;
 
-public class EfRepositoryUpdateFamilyMember : BaseEfRepoTestFixture
+public class EfRepositoryUpdateFamilyMemberTests : BaseEfRepoTestFixture
 {
   [Fact]
   public async Task UpdatesNameAndPin()

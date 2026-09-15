@@ -4,7 +4,7 @@ using LiftAndShift.Web.Contributors;
 namespace LiftAndShift.FunctionalTests.ApiEndpoints;
 
 [Collection("Sequential")]
-public class ContributorList(CustomWebApplicationFactory<Program> factory) : IClassFixture<CustomWebApplicationFactory<Program>>
+public class ContributorListTests(CustomWebApplicationFactory<Program> factory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
   private readonly HttpClient _client = factory.CreateClient();
 
