@@ -1,4 +1,4 @@
-using LiftAndShift.Core.FamilyMemberAggregate;
+﻿using LiftAndShift.Core.FamilyMemberAggregate;
 
 namespace LiftAndShift.IntegrationTests.Data;
 
@@ -12,9 +12,9 @@ public class EfRepositoryAddFamilyMemberTests : BaseEfRepoTestFixture
     var repository = GetFamilyMemberRepository();
     var familyMember = new FamilyMember(testName, testPin);
 
-    await repository.AddAsync(familyMember);
+    await repository.AddAsync(familyMember, TestContext.Current.CancellationToken);
 
-    var newFamilyMember = (await repository.ListAsync())
+    var newFamilyMember = (await repository.ListAsync(TestContext.Current.CancellationToken))
                     .FirstOrDefault();
 
     newFamilyMember.ShouldNotBeNull();

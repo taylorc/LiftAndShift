@@ -12,9 +12,9 @@ public class EfRepositoryAddTests : BaseEfRepoTestFixture
     var repository = GetRepository();
     var Contributor = new Contributor(testContributorName);
 
-    await repository.AddAsync(Contributor);
+    await repository.AddAsync(Contributor, TestContext.Current.CancellationToken);
 
-    var newContributor = (await repository.ListAsync())
+    var newContributor = (await repository.ListAsync(TestContext.Current.CancellationToken))
                     .FirstOrDefault();
 
     newContributor.ShouldNotBeNull();

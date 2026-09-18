@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using LiftAndShift.Infrastructure.Data;
 using LiftAndShift.Web.FamilyMembers;
@@ -64,7 +64,7 @@ public class ProgrammeApiEndpointsTests(CustomWebApplicationFactory<Program> fac
     await AdvancePhaseAsync(familyMemberId);
     await AdvancePhaseAsync(familyMemberId);
 
-    var response = await _client.PostAsync(AdvanceTrainingPhaseRequest.BuildRoute(familyMemberId), content: null);
+    var response = await _client.PostAsync(AdvanceTrainingPhaseRequest.BuildRoute(familyMemberId), content: null, TestContext.Current.CancellationToken);
 
     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
   }
