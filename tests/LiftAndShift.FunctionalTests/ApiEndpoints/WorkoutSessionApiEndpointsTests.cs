@@ -37,10 +37,27 @@ public class WorkoutSessionApiEndpointsTests(CustomWebApplicationFactory<Program
   private async Task<HttpResponseMessage> LogWorkoutSessionAsync(int familyMemberId, string workout, DateOnly performedOn, object loggedLifts) =>
     await _client.PostAsJsonAsync(LogWorkoutSessionRequest.BuildRoute(familyMemberId), new { Workout = workout, PerformedOn = performedOn, LoggedLifts = loggedLifts });
 
-  private static object[] WorkoutALifts() =>
+  // A session can only be logged at a lift's *current* Work Weight (see WorkWeightProgressionApiEndpointsTests),
+  // so this fetches it fresh rather than hardcoding a value that drifts as soon as a session progresses it.
+  private async Task<decimal> GetCurrentWorkWeightAsync(int familyMemberId, string lift)
+  {
+    var workWeight = await _client.GetAndDeserializeAsync<WorkWeightRecord>(GetWorkWeightRequest.BuildRoute(familyMemberId, lift));
+    return workWeight.WeightKg;
+  }
+
+  private async Task<object[]> WorkoutALiftsAsync(int familyMemberId) =>
+  [
+    new { Lift = "Squat", WeightKg = await GetCurrentWorkWeightAsync(familyMemberId, "Squat"), RepsPerSet = new[] { 5, 5, 5 } },
+    new { Lift = "Press", WeightKg = await GetCurrentWorkWeightAsync(familyMemberId, "Press"), RepsPerSet = new[] { 5, 5, 5 } },
+    new { Lift = "Deadlift", WeightKg = await GetCurrentWorkWeightAsync(familyMemberId, "Deadlift"), RepsPerSet = new[] { 5 } }
+  ];
+
+  // Fixed weights for tests where the request is rejected before the weight-match check ever runs
+  // (an un-Ramped lift or a nonexistent family member) - the actual values here don't matter.
+  private static object[] ArbitraryWorkoutALifts() =>
   [
     new { Lift = "Squat", WeightKg = 30m, RepsPerSet = new[] { 5, 5, 5 } },
-    new { Lift = "Press", WeightKg = 25m, RepsPerSet = new[] { 5, 5, 5 } },
+    new { Lift = "Press", WeightKg = 30m, RepsPerSet = new[] { 5, 5, 5 } },
     new { Lift = "Deadlift", WeightKg = 90m, RepsPerSet = new[] { 5 } }
   ];
 
@@ -57,7 +74,7 @@ public class WorkoutSessionApiEndpointsTests(CustomWebApplicationFactory<Program
     int familyMemberId = await CreateFamilyMemberAsync("Ivy", "1111");
     await RampWorkoutALiftsAsync(familyMemberId);
 
-    var logResponse = await LogWorkoutSessionAsync(familyMemberId, "A", TestPerformedOn, WorkoutALifts());
+    var logResponse = await LogWorkoutSessionAsync(familyMemberId, "A", TestPerformedOn, await WorkoutALiftsAsync(familyMemberId));
     logResponse.StatusCode.ShouldBe(HttpStatusCode.Created);
     var logged = await logResponse.Content.ReadFromJsonAsync<WorkoutSessionRecord>(TestContext.Current.CancellationToken);
 
@@ -84,7 +101,7 @@ public class WorkoutSessionApiEndpointsTests(CustomWebApplicationFactory<Program
     object[] phase1Lifts =
     [
       new { Lift = "Squat", WeightKg = 30m, RepsPerSet = new[] { 5, 5, 5 } },
-      new { Lift = "BenchPress", WeightKg = 20m, RepsPerSet = new[] { 5, 5, 5 } },
+      new { Lift = "BenchPress", WeightKg = 30m, RepsPerSet = new[] { 5, 5, 5 } },
       new { Lift = "Deadlift", WeightKg = 90m, RepsPerSet = new[] { 5 } }
     ];
 
@@ -96,11 +113,13 @@ public class WorkoutSessionApiEndpointsTests(CustomWebApplicationFactory<Program
     await AdvanceTrainingPhaseAsync(familyMemberId);
     await RampAsync(familyMemberId, "Row");
 
+    // Squat and BenchPress both progressed after the successful phase1 session, so their Work Weight
+    // is no longer the 30kg they Ramped to - fetch current values rather than assuming they're unchanged.
     object[] phase2Lifts =
     [
-      new { Lift = "Squat", WeightKg = 30m, RepsPerSet = new[] { 5, 5, 5 } },
-      new { Lift = "BenchPress", WeightKg = 20m, RepsPerSet = new[] { 5, 5, 5 } },
-      new { Lift = "Row", WeightKg = 30m, RepsPerSet = new[] { 5, 5, 5 } }
+      new { Lift = "Squat", WeightKg = await GetCurrentWorkWeightAsync(familyMemberId, "Squat"), RepsPerSet = new[] { 5, 5, 5 } },
+      new { Lift = "BenchPress", WeightKg = await GetCurrentWorkWeightAsync(familyMemberId, "BenchPress"), RepsPerSet = new[] { 5, 5, 5 } },
+      new { Lift = "Row", WeightKg = await GetCurrentWorkWeightAsync(familyMemberId, "Row"), RepsPerSet = new[] { 5, 5, 5 } }
     ];
 
     var phase2Response = await LogWorkoutSessionAsync(familyMemberId, "B", TestPerformedOn, phase2Lifts);
@@ -119,7 +138,7 @@ public class WorkoutSessionApiEndpointsTests(CustomWebApplicationFactory<Program
     await RampAsync(familyMemberId, "Press");
     // Deadlift intentionally not Ramped.
 
-    var response = await LogWorkoutSessionAsync(familyMemberId, "A", TestPerformedOn, WorkoutALifts());
+    var response = await LogWorkoutSessionAsync(familyMemberId, "A", TestPerformedOn, ArbitraryWorkoutALifts());
 
     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
   }
@@ -133,7 +152,7 @@ public class WorkoutSessionApiEndpointsTests(CustomWebApplicationFactory<Program
     object[] wrongSetCountLifts =
     [
       new { Lift = "Squat", WeightKg = 30m, RepsPerSet = new[] { 5, 5 } }, // only 2 sets; Squat needs 3
-      new { Lift = "Press", WeightKg = 25m, RepsPerSet = new[] { 5, 5, 5 } },
+      new { Lift = "Press", WeightKg = 30m, RepsPerSet = new[] { 5, 5, 5 } },
       new { Lift = "Deadlift", WeightKg = 90m, RepsPerSet = new[] { 5 } }
     ];
 
@@ -145,7 +164,7 @@ public class WorkoutSessionApiEndpointsTests(CustomWebApplicationFactory<Program
   [Fact]
   public async Task LoggingASessionForANonexistentFamilyMemberReturnsNotFound()
   {
-    var response = await LogWorkoutSessionAsync(1_000_000, "A", TestPerformedOn, WorkoutALifts());
+    var response = await LogWorkoutSessionAsync(1_000_000, "A", TestPerformedOn, ArbitraryWorkoutALifts());
 
     response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
   }
@@ -168,9 +187,11 @@ public class WorkoutSessionApiEndpointsTests(CustomWebApplicationFactory<Program
     var middle = new DateOnly(2026, 9, 10);
     var latest = new DateOnly(2026, 9, 20);
 
-    await LogWorkoutSessionAsync(familyMemberId, "A", earliest, WorkoutALifts());
-    await LogWorkoutSessionAsync(familyMemberId, "A", latest, WorkoutALifts());
-    await LogWorkoutSessionAsync(familyMemberId, "A", middle, WorkoutALifts());
+    // Each session progresses Work Weight, so the lifts (and their weights) must be re-fetched before
+    // every log call rather than reused - logging at a stale weight is now rejected (see WorkWeightProgressionApiEndpointsTests).
+    await LogWorkoutSessionAsync(familyMemberId, "A", earliest, await WorkoutALiftsAsync(familyMemberId));
+    await LogWorkoutSessionAsync(familyMemberId, "A", latest, await WorkoutALiftsAsync(familyMemberId));
+    await LogWorkoutSessionAsync(familyMemberId, "A", middle, await WorkoutALiftsAsync(familyMemberId));
 
     var list = await _client.GetAndDeserializeAsync<WorkoutSessionListResponse>(ListWorkoutSessionsRequest.BuildRoute(familyMemberId));
 

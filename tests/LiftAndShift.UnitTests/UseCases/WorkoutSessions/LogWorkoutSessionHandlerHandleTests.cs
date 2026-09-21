@@ -17,10 +17,12 @@ public class LogWorkoutSessionHandlerHandleTests
     _handler = new LogWorkoutSessionHandler(_workoutSessionRepository, _programmeRepository, _workWeightRepository);
   }
 
+  // RampedWorkWeight(lift) below ramps every lift to finalSetNumber 3, so these must match each
+  // lift's RampWeightForSet(3): Squat/Press 30kg (opening 20 + 2*5), Deadlift 90kg (opening 70 + 2*10).
   private static IReadOnlyList<LoggedLiftInput> ValidWorkoutALoggedLifts(int squatFinalRep = 5) =>
   [
     new(Lift.Squat, WeightKg.From(30), [5, 5, squatFinalRep]),
-    new(Lift.Press, WeightKg.From(25), [5, 5, 5]),
+    new(Lift.Press, WeightKg.From(30), [5, 5, 5]),
     new(Lift.Deadlift, WeightKg.From(90), [5])
   ];
 
@@ -87,8 +89,8 @@ public class LogWorkoutSessionHandlerHandleTests
     IReadOnlyList<LoggedLiftInput> wrongLifts =
     [
       new(Lift.Squat, WeightKg.From(30), [5, 5, 5]),
-      new(Lift.Press, WeightKg.From(25), [5, 5, 5]),
-      new(Lift.BenchPress, WeightKg.From(25), [5, 5, 5]) // Bench Press doesn't belong to Workout A
+      new(Lift.Press, WeightKg.From(30), [5, 5, 5]),
+      new(Lift.BenchPress, WeightKg.From(30), [5, 5, 5]) // Bench Press doesn't belong to Workout A
     ];
 
     var result = await _handler.Handle(

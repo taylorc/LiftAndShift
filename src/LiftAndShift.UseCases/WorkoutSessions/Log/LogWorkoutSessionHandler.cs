@@ -34,6 +34,21 @@ public class LogWorkoutSessionHandler(
       });
     }
 
+    // Progression/deload trusts the logged weight to decide what the *next* Work Weight should be,
+    // so a session can only be logged at a lift's current Work Weight - otherwise a stray or stale
+    // WeightKg (a typo, a warm-up submitted as a work set, ...) could silently move Work Weight to a
+    // value nobody actually lifted.
+    var mismatchedLift = command.LoggedLifts.FirstOrDefault(l => l.WeightKg != workWeightsByLift[l.Lift].WeightKg);
+    if (mismatchedLift != null)
+    {
+      var currentWeight = workWeightsByLift[mismatchedLift.Lift].WeightKg;
+      return Result.Invalid(new ValidationError
+      {
+        Identifier = nameof(command.LoggedLifts),
+        ErrorMessage = $"{mismatchedLift.Lift.Name} must be logged at its current Work Weight ({currentWeight.Value}kg), not {mismatchedLift.WeightKg.Value}kg."
+      });
+    }
+
     WorkoutSession session;
     try
     {

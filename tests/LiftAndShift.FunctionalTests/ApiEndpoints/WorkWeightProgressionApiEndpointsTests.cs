@@ -35,8 +35,20 @@ public class WorkWeightProgressionApiEndpointsTests(CustomWebApplicationFactory<
     await RampAsync(familyMemberId, "Deadlift");
   }
 
+  private async Task<decimal> GetCurrentWorkWeightAsync(int familyMemberId, string lift)
+  {
+    var workWeight = await _client.GetAndDeserializeAsync<WorkWeightRecord>(GetWorkWeightRequest.BuildRoute(familyMemberId, lift));
+    return workWeight.WeightKg;
+  }
+
+  // Press and Deadlift are always logged as a clean success here, so - like Squat once it succeeds -
+  // their Work Weight climbs after every call. Fetch each fresh rather than assuming they're still at
+  // their Ramped value once a test logs more than one session.
   private async Task<WorkoutSessionRecord> LogWorkoutASessionAsync(int familyMemberId, DateOnly performedOn, decimal squatWeightKg, int squatFinalRep)
   {
+    var pressWeightKg = await GetCurrentWorkWeightAsync(familyMemberId, "Press");
+    var deadliftWeightKg = await GetCurrentWorkWeightAsync(familyMemberId, "Deadlift");
+
     var response = await _client.PostAsJsonAsync(LogWorkoutSessionRequest.BuildRoute(familyMemberId), new
     {
       Workout = "A",
@@ -44,8 +56,8 @@ public class WorkWeightProgressionApiEndpointsTests(CustomWebApplicationFactory<
       LoggedLifts = new object[]
       {
         new { Lift = "Squat", WeightKg = squatWeightKg, RepsPerSet = new[] { 5, 5, squatFinalRep } },
-        new { Lift = "Press", WeightKg = 25m, RepsPerSet = new[] { 5, 5, 5 } },
-        new { Lift = "Deadlift", WeightKg = 90m, RepsPerSet = new[] { 5 } }
+        new { Lift = "Press", WeightKg = pressWeightKg, RepsPerSet = new[] { 5, 5, 5 } },
+        new { Lift = "Deadlift", WeightKg = deadliftWeightKg, RepsPerSet = new[] { 5 } }
       }
     });
     response.EnsureSuccessStatusCode();
