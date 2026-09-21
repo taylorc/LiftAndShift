@@ -12,6 +12,8 @@ global using LiftAndShift.UseCases.FamilyMembers.Create;
 global using LiftAndShift.UseCases.FamilyMembers.Get;
 global using LiftAndShift.UseCases.FamilyMembers.Update;
 global using LiftAndShift.UseCases.FamilyMembers.Delete;
+global using LiftAndShift.UseCases.PersonalRecords;
+global using LiftAndShift.UseCases.PersonalRecords.Get;
 global using LiftAndShift.UseCases.Programmes;
 global using LiftAndShift.UseCases.Programmes.Get;
 global using LiftAndShift.UseCases.Programmes.AdvancePhase;
