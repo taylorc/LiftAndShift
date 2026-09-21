@@ -135,4 +135,23 @@ public class WorkWeightProgressionApiEndpointsTests(CustomWebApplicationFactory<
     var workWeight = await _client.GetAndDeserializeAsync<WorkWeightRecord>(GetWorkWeightRequest.BuildRoute(familyMemberId, "Squat"));
     workWeight.ConsecutiveFailures.ShouldBe(1);
   }
+
+  [Fact]
+  public async Task DeloadNeverDropsBelowTheLiftsOpeningWeight()
+  {
+    int familyMemberId = await CreateFamilyMemberAsync("Sable", "5555");
+    await RampAsync(familyMemberId, "Squat", finalSetNumber: 1); // opens exactly at its 20kg floor
+    await RampAsync(familyMemberId, "Press");
+    await RampAsync(familyMemberId, "Deadlift");
+
+    await LogWorkoutASessionAsync(familyMemberId, Day1, squatWeightKg: 20, squatFinalRep: 3); // 1st failure
+    var second = await LogWorkoutASessionAsync(familyMemberId, Day2, squatWeightKg: 20, squatFinalRep: 3); // 2nd consecutive failure
+
+    var squatOutcome = second.LiftOutcomes.Single(o => o.Lift == "Squat");
+    squatOutcome.Deloaded.ShouldBeTrue();
+    squatOutcome.NewWeightKg.ShouldBe(20); // floored at the opening weight, not floor(20 * 0.9) = 18
+
+    var workWeight = await _client.GetAndDeserializeAsync<WorkWeightRecord>(GetWorkWeightRequest.BuildRoute(familyMemberId, "Squat"));
+    workWeight.WeightKg.ShouldBe(20);
+  }
 }

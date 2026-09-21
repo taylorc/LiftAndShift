@@ -74,4 +74,28 @@ public class WorkWeightProgressionTests
     workWeight.WeightKg.ShouldBe(WeightKg.From(35));
     workWeight.ConsecutiveFailures.ShouldBe(1);
   }
+
+  [Fact]
+  public void ADeloadNeverDropsBelowTheLiftsOpeningWeight()
+  {
+    var workWeight = new WorkWeight(_testFamilyMemberId, Lift.Squat, WeightKg.From(Lift.Squat.OpeningWeightKg)); // 20kg
+    workWeight.RecordFailure(); // streak = 1
+
+    bool deloaded = workWeight.RecordFailure(); // would compute floor(20 * 0.9) = 18, but floors at 20
+
+    deloaded.ShouldBeTrue();
+    workWeight.WeightKg.ShouldBe(WeightKg.From(20));
+    workWeight.ConsecutiveFailures.ShouldBe(0);
+  }
+
+  [Fact]
+  public void ADeloadThatWouldCrossTheFloorLandsExactlyOnIt()
+  {
+    var workWeight = new WorkWeight(_testFamilyMemberId, Lift.Squat, WeightKg.From(21)); // just above the 20kg floor
+    workWeight.RecordFailure(); // streak = 1
+
+    workWeight.RecordFailure(); // would compute floor(21 * 0.9) = 18, but floors at 20
+
+    workWeight.WeightKg.ShouldBe(WeightKg.From(20));
+  }
 }

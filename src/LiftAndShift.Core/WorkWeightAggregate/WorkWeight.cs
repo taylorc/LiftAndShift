@@ -28,13 +28,15 @@ public class WorkWeight(FamilyMemberId familyMemberId, Lift lift, WeightKg weigh
   /// <summary>
   /// Records a session where at least one set for this lift missed its rep target. The first failure
   /// only marks the streak; the second *consecutive* failure at the same Work Weight deloads it by 10%
-  /// (rounded down to the nearest whole kg) and resets the streak. Returns whether this call deloaded.
+  /// (rounded down to the nearest whole kg, never below the lift's opening weight) and resets the
+  /// streak. Returns whether this call deloaded (the rule fired, even if the floor left the weight
+  /// unchanged) - not whether the weight actually decreased.
   /// </summary>
   public bool RecordFailure()
   {
     if (ConsecutiveFailures >= 1)
     {
-      WeightKg = WeightKg.From(Math.Floor(WeightKg.Value * DeloadMultiplier));
+      WeightKg = WeightKg.From(Math.Max(Lift.OpeningWeightKg, Math.Floor(WeightKg.Value * DeloadMultiplier)));
       ConsecutiveFailures = 0;
       return true;
     }
