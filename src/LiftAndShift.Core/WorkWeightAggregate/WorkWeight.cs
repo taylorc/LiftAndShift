@@ -44,9 +44,9 @@ public class WorkWeight(FamilyMemberId familyMemberId, Lift lift, WeightKg weigh
   }
 
   /// <summary>
-  /// The fixed warm-up ladder leading up to (but not including) this Work Weight: the lift's opening
-  /// weight, then 40%/60%/80% of Work Weight at 5/5/3/2 reps respectively, each rounded down to the
-  /// nearest whole kg and never below the lift's opening weight.
+  /// The fixed four-set warm-up ladder leading up to (but not including) this Work Weight, at 5/5/3/2
+  /// reps respectively: the lift's opening weight, then 40%, 60%, and 80% of Work Weight, each rounded
+  /// down to the nearest whole kg and never below the lift's opening weight.
   /// </summary>
   public IReadOnlyList<WarmUpSet> CalculateWarmUpSets() =>
   [
