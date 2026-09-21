@@ -22,6 +22,7 @@ global using LiftAndShift.UseCases.WorkoutSessions.Log;
 global using LiftAndShift.UseCases.WorkWeights;
 global using LiftAndShift.UseCases.WorkWeights.Get;
 global using LiftAndShift.UseCases.WorkWeights.CompleteRamp;
+global using LiftAndShift.UseCases.WorkWeights.WarmUp;
 global using Shouldly;
 global using Mediator;
 global using Microsoft.Extensions.Logging;

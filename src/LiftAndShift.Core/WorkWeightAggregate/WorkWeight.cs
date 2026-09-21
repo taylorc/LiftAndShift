@@ -42,4 +42,23 @@ public class WorkWeight(FamilyMemberId familyMemberId, Lift lift, WeightKg weigh
     ConsecutiveFailures = 1;
     return false;
   }
+
+  /// <summary>
+  /// The fixed warm-up ladder leading up to (but not including) this Work Weight: the lift's opening
+  /// weight, then 40%/60%/80% of Work Weight at 5/5/3/2 reps respectively, each rounded down to the
+  /// nearest whole kg and never below the lift's opening weight.
+  /// </summary>
+  public IReadOnlyList<WarmUpSet> CalculateWarmUpSets() =>
+  [
+    new WarmUpSet(WeightKg.From(Lift.OpeningWeightKg), 5),
+    WarmUpSetAtPercentage(0.4m, 5),
+    WarmUpSetAtPercentage(0.6m, 3),
+    WarmUpSetAtPercentage(0.8m, 2)
+  ];
+
+  private WarmUpSet WarmUpSetAtPercentage(decimal percentage, int reps)
+  {
+    var weightKg = Math.Max(Lift.OpeningWeightKg, Math.Floor(WeightKg.Value * percentage));
+    return new WarmUpSet(WeightKg.From(weightKg), reps);
+  }
 }
