@@ -155,5 +155,6 @@ public sealed class LogWorkoutSessionMapper
       e.Workout.Name,
       e.TrainingPhase.Value,
       e.PerformedOn,
-      e.LoggedSets.Select(s => new LoggedSetRecord(s.Id.Value, s.Lift.Name, s.WeightKg.Value, s.SetNumber, s.RepsAchieved)).ToList());
+      e.LoggedSets.Select(s => new LoggedSetRecord(s.Id.Value, s.Lift.Name, s.WeightKg.Value, s.SetNumber, s.RepsAchieved)).ToList(),
+      e.LiftOutcomes.Select(o => new LiftOutcomeRecord(o.Lift.Name, o.Successful, o.NewWeightKg.Value, o.Deloaded)).ToList());
 }

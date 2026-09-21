@@ -25,7 +25,7 @@ public class GetByFamilyMemberIdAndLift(IMediator mediator)
       s.Summary = "Get a family member's Work Weight for a lift";
       s.Description = "Retrieves the Work Weight established by the Ramp for the specified family member and lift.";
       s.ExampleRequest = new GetWorkWeightRequest { FamilyMemberId = 1, Lift = "Squat" };
-      s.ResponseExamples[200] = new WorkWeightRecord(1, 1, "Squat", 30);
+      s.ResponseExamples[200] = new WorkWeightRecord(1, 1, "Squat", 30, 0);
 
       s.Responses[200] = "Work Weight found and returned successfully";
       s.Responses[404] = "Family member, lift, or Work Weight not found (lift not yet Ramped)";
@@ -77,5 +77,5 @@ public sealed class GetWorkWeightMapper
   : Mapper<GetWorkWeightRequest, WorkWeightRecord, WorkWeightDto>
 {
   public override WorkWeightRecord FromEntity(WorkWeightDto e)
-    => new(e.Id.Value, e.FamilyMemberId.Value, e.Lift.Name, e.WeightKg.Value);
+    => new(e.Id.Value, e.FamilyMemberId.Value, e.Lift.Name, e.WeightKg.Value, e.ConsecutiveFailures);
 }

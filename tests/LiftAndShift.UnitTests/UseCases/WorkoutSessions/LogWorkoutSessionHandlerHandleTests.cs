@@ -9,7 +9,7 @@ public class LogWorkoutSessionHandlerHandleTests
   private readonly DateOnly _testPerformedOn = new(2026, 9, 21);
   private readonly IRepository<WorkoutSession> _workoutSessionRepository = Substitute.For<IRepository<WorkoutSession>>();
   private readonly IReadRepository<LiftAndShift.Core.ProgrammeAggregate.Programme> _programmeRepository = Substitute.For<IReadRepository<LiftAndShift.Core.ProgrammeAggregate.Programme>>();
-  private readonly IReadRepository<LiftAndShift.Core.WorkWeightAggregate.WorkWeight> _workWeightRepository = Substitute.For<IReadRepository<LiftAndShift.Core.WorkWeightAggregate.WorkWeight>>();
+  private readonly IRepository<LiftAndShift.Core.WorkWeightAggregate.WorkWeight> _workWeightRepository = Substitute.For<IRepository<LiftAndShift.Core.WorkWeightAggregate.WorkWeight>>();
   private readonly LogWorkoutSessionHandler _handler;
 
   public LogWorkoutSessionHandlerHandleTests()
@@ -17,9 +17,9 @@ public class LogWorkoutSessionHandlerHandleTests
     _handler = new LogWorkoutSessionHandler(_workoutSessionRepository, _programmeRepository, _workWeightRepository);
   }
 
-  private static IReadOnlyList<LoggedLiftInput> ValidWorkoutALoggedLifts() =>
+  private static IReadOnlyList<LoggedLiftInput> ValidWorkoutALoggedLifts(int squatFinalRep = 5) =>
   [
-    new(Lift.Squat, WeightKg.From(30), [5, 5, 5]),
+    new(Lift.Squat, WeightKg.From(30), [5, 5, squatFinalRep]),
     new(Lift.Press, WeightKg.From(25), [5, 5, 5]),
     new(Lift.Deadlift, WeightKg.From(90), [5])
   ];
@@ -29,11 +29,15 @@ public class LogWorkoutSessionHandlerHandleTests
       .Returns(Task.FromResult<LiftAndShift.Core.ProgrammeAggregate.Programme?>(
         new LiftAndShift.Core.ProgrammeAggregate.Programme(_testFamilyMemberId, TrainingPhase.From(1))));
 
-  private void GivenRampedLifts(params Lift[] rampedLifts) =>
-    _workWeightRepository.ListAsync(Arg.Any<ISpecification<LiftAndShift.Core.WorkWeightAggregate.WorkWeight, Lift>>(), Arg.Any<CancellationToken>())
-      .Returns(Task.FromResult<List<Lift>>([.. rampedLifts]));
+  private void GivenRampedWorkWeights(params LiftAndShift.Core.WorkWeightAggregate.WorkWeight[] workWeights) =>
+    _workWeightRepository.ListAsync(Arg.Any<ISpecification<LiftAndShift.Core.WorkWeightAggregate.WorkWeight>>(), Arg.Any<CancellationToken>())
+      .Returns(Task.FromResult<List<LiftAndShift.Core.WorkWeightAggregate.WorkWeight>>([.. workWeights]));
 
-  private void GivenAllWorkoutALiftsAreRamped() => GivenRampedLifts(Lift.Squat, Lift.Press, Lift.Deadlift, Lift.BenchPress);
+  private LiftAndShift.Core.WorkWeightAggregate.WorkWeight RampedWorkWeight(Lift lift) =>
+    LiftAndShift.Core.WorkWeightAggregate.WorkWeight.CompleteRamp(_testFamilyMemberId, lift, 3);
+
+  private void GivenAllWorkoutALiftsAreRamped() =>
+    GivenRampedWorkWeights(RampedWorkWeight(Lift.Squat), RampedWorkWeight(Lift.Press), RampedWorkWeight(Lift.Deadlift), RampedWorkWeight(Lift.BenchPress));
 
   [Fact]
   public async Task ReturnsNotFoundGivenNoProgrammeForFamilyMember()
@@ -49,7 +53,7 @@ public class LogWorkoutSessionHandlerHandleTests
   public async Task ReturnsInvalidGivenALiftHasNotBeenRamped()
   {
     GivenProgrammeAtPhase1();
-    GivenRampedLifts(Lift.Squat, Lift.Press); // Deadlift not Ramped
+    GivenRampedWorkWeights(RampedWorkWeight(Lift.Squat), RampedWorkWeight(Lift.Press)); // Deadlift not Ramped
 
     var result = await _handler.Handle(
       new LogWorkoutSessionCommand(_testFamilyMemberId, Workout.A, _testPerformedOn, ValidWorkoutALoggedLifts()),
@@ -71,7 +75,7 @@ public class LogWorkoutSessionHandlerHandleTests
       CancellationToken.None);
 
     await _workWeightRepository.Received(1).ListAsync(
-      Arg.Any<ISpecification<LiftAndShift.Core.WorkWeightAggregate.WorkWeight, Lift>>(), Arg.Any<CancellationToken>());
+      Arg.Any<ISpecification<LiftAndShift.Core.WorkWeightAggregate.WorkWeight>>(), Arg.Any<CancellationToken>());
   }
 
   [Fact]
@@ -112,5 +116,56 @@ public class LogWorkoutSessionHandlerHandleTests
     result.Value.TrainingPhase.ShouldBe(TrainingPhase.From(1));
     result.Value.LoggedSets.Count.ShouldBe(7);
     await _workoutSessionRepository.Received(1).AddAsync(Arg.Any<WorkoutSession>(), Arg.Any<CancellationToken>());
+  }
+
+  [Fact]
+  public async Task SuccessfulLiftsProgressAndAreReportedInLiftOutcomes()
+  {
+    GivenProgrammeAtPhase1();
+    GivenAllWorkoutALiftsAreRamped(); // Squat starts at 30kg
+
+    var result = await _handler.Handle(
+      new LogWorkoutSessionCommand(_testFamilyMemberId, Workout.A, _testPerformedOn, ValidWorkoutALoggedLifts()),
+      CancellationToken.None);
+
+    var squatOutcome = result.Value.LiftOutcomes.Single(o => o.Lift == Lift.Squat);
+    squatOutcome.Successful.ShouldBeTrue();
+    squatOutcome.Deloaded.ShouldBeFalse();
+    squatOutcome.NewWeightKg.ShouldBe(WeightKg.From(35)); // 30 + Squat's 5kg progression increment
+    await _workWeightRepository.Received(3).UpdateAsync(Arg.Any<LiftAndShift.Core.WorkWeightAggregate.WorkWeight>(), Arg.Any<CancellationToken>());
+  }
+
+  [Fact]
+  public async Task AFailedLiftDoesNotProgressAndIsReportedAsUnsuccessful()
+  {
+    GivenProgrammeAtPhase1();
+    GivenAllWorkoutALiftsAreRamped(); // Squat starts at 30kg
+
+    var result = await _handler.Handle(
+      new LogWorkoutSessionCommand(_testFamilyMemberId, Workout.A, _testPerformedOn, ValidWorkoutALoggedLifts(squatFinalRep: 3)),
+      CancellationToken.None);
+
+    var squatOutcome = result.Value.LiftOutcomes.Single(o => o.Lift == Lift.Squat);
+    squatOutcome.Successful.ShouldBeFalse();
+    squatOutcome.Deloaded.ShouldBeFalse();
+    squatOutcome.NewWeightKg.ShouldBe(WeightKg.From(30)); // unchanged on the first failure
+  }
+
+  [Fact]
+  public async Task ASecondConsecutiveFailureDeloadsTheLift()
+  {
+    GivenProgrammeAtPhase1();
+    var alreadyFailingSquat = RampedWorkWeight(Lift.Squat); // 30kg
+    alreadyFailingSquat.RecordFailure(); // streak = 1 already
+    GivenRampedWorkWeights(alreadyFailingSquat, RampedWorkWeight(Lift.Press), RampedWorkWeight(Lift.Deadlift));
+
+    var result = await _handler.Handle(
+      new LogWorkoutSessionCommand(_testFamilyMemberId, Workout.A, _testPerformedOn, ValidWorkoutALoggedLifts(squatFinalRep: 3)),
+      CancellationToken.None);
+
+    var squatOutcome = result.Value.LiftOutcomes.Single(o => o.Lift == Lift.Squat);
+    squatOutcome.Successful.ShouldBeFalse();
+    squatOutcome.Deloaded.ShouldBeTrue();
+    squatOutcome.NewWeightKg.ShouldBe(WeightKg.From(27)); // floor(30 * 0.9)
   }
 }

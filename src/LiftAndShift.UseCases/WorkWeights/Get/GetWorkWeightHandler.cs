@@ -12,6 +12,6 @@ public class GetWorkWeightHandler(IReadRepository<WorkWeight> _repository)
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 
-    return new WorkWeightDto(entity.Id, entity.FamilyMemberId, entity.Lift, entity.WeightKg);
+    return new WorkWeightDto(entity.Id, entity.FamilyMemberId, entity.Lift, entity.WeightKg, entity.ConsecutiveFailures);
   }
 }

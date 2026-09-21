@@ -10,4 +10,5 @@ public record WorkoutSessionDto(
   Workout Workout,
   TrainingPhase TrainingPhase,
   DateOnly PerformedOn,
-  IReadOnlyList<LoggedSetDto> LoggedSets);
+  IReadOnlyList<LoggedSetDto> LoggedSets,
+  IReadOnlyList<LiftOutcomeDto> LiftOutcomes);

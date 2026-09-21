@@ -50,4 +50,18 @@ public class LiftTests
 
     lift.WorkSetCount.ShouldBe(expectedWorkSetCount);
   }
+
+  [Theory]
+  [InlineData("Squat", 5)]
+  [InlineData("Press", 2.5)]
+  [InlineData("BenchPress", 2.5)]
+  [InlineData("Row", 5)]
+  [InlineData("LatPulldown", 5)]
+  [InlineData("Deadlift", 5)]
+  public void HasExpectedProgressionIncrement(string liftName, decimal expectedProgressionIncrementKg)
+  {
+    var lift = Lift.FromName(liftName);
+
+    lift.ProgressionIncrementKg.ShouldBe(expectedProgressionIncrementKg);
+  }
 }

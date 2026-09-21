@@ -26,7 +26,7 @@ public class CompleteRamp(IMediator mediator)
       s.Summary = "Complete a family member's Ramp for a lift";
       s.Description = "Records the Work Weight discovered by the Ramp procedure for the specified family member and lift, based on the set at which the bar slowed. Fails if this lift has already been Ramped for this family member.";
       s.ExampleRequest = new CompleteRampRequest { FamilyMemberId = 1, Lift = "Squat", FinalSetNumber = 3 };
-      s.ResponseExamples[200] = new WorkWeightRecord(1, 1, "Squat", 30);
+      s.ResponseExamples[200] = new WorkWeightRecord(1, 1, "Squat", 30, 0);
 
       s.Responses[200] = "Ramp completed and Work Weight recorded successfully";
       s.Responses[404] = "Family member not found";
@@ -88,5 +88,5 @@ public sealed class CompleteRampMapper
   : Mapper<CompleteRampRequest, WorkWeightRecord, WorkWeightDto>
 {
   public override WorkWeightRecord FromEntity(WorkWeightDto e)
-    => new(e.Id.Value, e.FamilyMemberId.Value, e.Lift.Name, e.WeightKg.Value);
+    => new(e.Id.Value, e.FamilyMemberId.Value, e.Lift.Name, e.WeightKg.Value, e.ConsecutiveFailures);
 }

@@ -12,6 +12,8 @@ public class GetWorkoutSessionHandler(IReadRepository<WorkoutSession> _repositor
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 
+    // LiftOutcomes reflects what changed to Work Weight *at the moment a session was logged*; that's
+    // not something we retroactively reconstruct for a historical session, so it's always empty here.
     return new WorkoutSessionDto(
       entity.Id,
       entity.FamilyMemberId,
@@ -20,6 +22,7 @@ public class GetWorkoutSessionHandler(IReadRepository<WorkoutSession> _repositor
       entity.PerformedOn,
       entity.LoggedSets
         .Select(s => new LoggedSetDto(s.Id, s.Lift, s.WeightKg, s.SetNumber, s.RepsAchieved))
-        .ToList());
+        .ToList(),
+      []);
   }
 }

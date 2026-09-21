@@ -41,7 +41,7 @@ public class CompleteRampHandler(IRepository<WorkWeight> _repository, IReadRepos
       throw;
     }
 
-    return new WorkWeightDto(workWeight.Id, workWeight.FamilyMemberId, workWeight.Lift, workWeight.WeightKg);
+    return new WorkWeightDto(workWeight.Id, workWeight.FamilyMemberId, workWeight.Lift, workWeight.WeightKg, workWeight.ConsecutiveFailures);
   }
 
   private static Result<WorkWeightDto> AlreadyRampedResult(Core.Lifts.Lift lift) =>

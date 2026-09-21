@@ -6,4 +6,5 @@ public record WorkoutSessionRecord(
   string Workout,
   int TrainingPhase,
   DateOnly PerformedOn,
-  IReadOnlyList<LoggedSetRecord> LoggedSets);
+  IReadOnlyList<LoggedSetRecord> LoggedSets,
+  IReadOnlyList<LiftOutcomeRecord> LiftOutcomes);

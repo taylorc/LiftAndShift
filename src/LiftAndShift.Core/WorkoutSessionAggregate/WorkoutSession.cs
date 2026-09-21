@@ -1,4 +1,5 @@
 using LiftAndShift.Core.FamilyMemberAggregate;
+using LiftAndShift.Core.Lifts;
 using LiftAndShift.Core.ProgrammeAggregate;
 using LiftAndShift.Core.Workouts;
 
@@ -6,6 +7,8 @@ namespace LiftAndShift.Core.WorkoutSessionAggregate;
 
 public class WorkoutSession : EntityBase<WorkoutSession, WorkoutSessionId>, IAggregateRoot
 {
+  private const int RequiredRepsPerSet = 5;
+
   private readonly List<LoggedSet> _loggedSets = [];
 
   public FamilyMemberId FamilyMemberId { get; private set; }
@@ -59,5 +62,15 @@ public class WorkoutSession : EntityBase<WorkoutSession, WorkoutSessionId>, IAgg
     }
 
     return session;
+  }
+
+  /// <summary>
+  /// Whether every logged set for the given lift in this session hit the required rep target.
+  /// A lift with no logged sets is not considered successful.
+  /// </summary>
+  public bool WasSuccessful(Lift lift)
+  {
+    var setsForLift = _loggedSets.Where(s => s.Lift == lift).ToList();
+    return setsForLift.Count > 0 && setsForLift.All(s => s.RepsAchieved >= RequiredRepsPerSet);
   }
 }
