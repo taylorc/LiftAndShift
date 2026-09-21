@@ -27,3 +27,7 @@ _Avoid_: Warm-up (the Ramp is a distinct, one-time concept; the ordinary warm-up
 **Work Weight**:
 The load a Family Member lifts for a given lift's work sets in a session. Established once by that lift's Ramp, then adjusted session-to-session by the existing progression/deload rules.
 _Avoid_: Working weight, target weight
+
+## Branding
+**Colours**
+#CC5500, #E2725B, #FFFFF0
