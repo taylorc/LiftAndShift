@@ -36,4 +36,18 @@ public class LiftTests
   {
     Assert.Throws<ArgumentException>(() => Lift.Squat.RampWeightForSet(0));
   }
+
+  [Theory]
+  [InlineData("Squat", 3)]
+  [InlineData("Press", 3)]
+  [InlineData("BenchPress", 3)]
+  [InlineData("Row", 3)]
+  [InlineData("LatPulldown", 3)]
+  [InlineData("Deadlift", 1)]
+  public void HasExpectedWorkSetCount(string liftName, int expectedWorkSetCount)
+  {
+    var lift = Lift.FromName(liftName);
+
+    lift.WorkSetCount.ShouldBe(expectedWorkSetCount);
+  }
 }

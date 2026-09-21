@@ -15,20 +15,50 @@ public static class ResultExtensions
     return result.Status switch
     {
       ResultStatus.Ok => TypedResults.Created(locationBuilder(result.Value), mapResponse(result.Value)),
-      ResultStatus.Invalid => TypedResults.ValidationProblem(
-        result.ValidationErrors
-          .GroupBy(e => e.Identifier ?? string.Empty)
-          .ToDictionary(
-            g => g.Key,
-            g => g.Select(e => e.ErrorMessage).ToArray()
-          )
-      ),
-      _ => TypedResults.Problem(
-        title: "Create failed",
-        detail: string.Join("; ", result.Errors),
-        statusCode: StatusCodes.Status400BadRequest)
+      ResultStatus.Invalid => ToValidationProblem(result),
+      _ => ToCreateFailedProblem(result)
     };
   }
+
+  /// <summary>
+  /// Maps Result to TypedResults for endpoints that return Created, NotFound, ValidationProblem, or ProblemHttpResult
+  /// (i.e. creating a child resource under a parent that may not exist)
+  /// </summary>
+  public static Results<Created<TResponse>, NotFound, ValidationProblem, ProblemHttpResult> ToCreatedOrNotFoundResult<TValue, TResponse>(
+    this Result<TValue> result,
+    Func<TValue, string> locationBuilder,
+    Func<TValue, TResponse> mapResponse)
+  {
+    return result.Status switch
+    {
+      ResultStatus.Ok => TypedResults.Created(locationBuilder(result.Value), mapResponse(result.Value)),
+      ResultStatus.NotFound => TypedResults.NotFound(),
+      ResultStatus.Invalid => ToValidationProblem(result),
+      _ => ToCreateFailedProblem(result)
+    };
+  }
+
+  /// <summary>
+  /// Private helper for building a ValidationProblem from a Result's validation errors, shared by the Create* helpers
+  /// </summary>
+  private static ValidationProblem ToValidationProblem<TValue>(Result<TValue> result) =>
+    TypedResults.ValidationProblem(
+      result.ValidationErrors
+        .GroupBy(e => e.Identifier ?? string.Empty)
+        .ToDictionary(
+          g => g.Key,
+          g => g.Select(e => e.ErrorMessage).ToArray()
+        )
+    );
+
+  /// <summary>
+  /// Private helper for the generic "create failed" fallback Problem, shared by the Create* helpers
+  /// </summary>
+  private static ProblemHttpResult ToCreateFailedProblem<TValue>(Result<TValue> result) =>
+    TypedResults.Problem(
+      title: "Create failed",
+      detail: string.Join("; ", result.Errors),
+      statusCode: StatusCodes.Status400BadRequest);
 
   /// <summary>
   /// Maps Result to TypedResults for GetById endpoints that return Ok, NotFound, or ProblemHttpResult
