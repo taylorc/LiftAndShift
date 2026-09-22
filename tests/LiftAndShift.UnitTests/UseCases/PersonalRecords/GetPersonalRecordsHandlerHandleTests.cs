@@ -6,12 +6,12 @@ public class GetPersonalRecordsHandlerHandleTests
 {
   private readonly FamilyMemberId _testFamilyMemberId = FamilyMemberId.From(1);
   private readonly IReadRepository<FamilyMember> _familyMemberRepository = Substitute.For<IReadRepository<FamilyMember>>();
-  private readonly IReadRepository<WorkoutSession> _workoutSessionRepository = Substitute.For<IReadRepository<WorkoutSession>>();
+  private readonly IPersonalRecordsQueryService _query = Substitute.For<IPersonalRecordsQueryService>();
   private readonly GetPersonalRecordsHandler _handler;
 
   public GetPersonalRecordsHandlerHandleTests()
   {
-    _handler = new GetPersonalRecordsHandler(_familyMemberRepository, _workoutSessionRepository);
+    _handler = new GetPersonalRecordsHandler(_familyMemberRepository, _query);
   }
 
   [Fact]
@@ -23,12 +23,12 @@ public class GetPersonalRecordsHandlerHandleTests
   }
 
   [Fact]
-  public async Task ReturnsEmptyListGivenFamilyMemberWithNoSessions()
+  public async Task ReturnsEmptyListGivenFamilyMemberWithNoRecords()
   {
     _familyMemberRepository.FirstOrDefaultAsync(Arg.Any<ISpecification<FamilyMember>>(), Arg.Any<CancellationToken>())
       .Returns(Task.FromResult<FamilyMember?>(new FamilyMember(FamilyMemberName.From("Ada"), Pin.From("1234"))));
-    _workoutSessionRepository.ListAsync(Arg.Any<ISpecification<WorkoutSession>>(), Arg.Any<CancellationToken>())
-      .Returns(Task.FromResult<List<WorkoutSession>>([]));
+    _query.GetAsync(_testFamilyMemberId, Arg.Any<CancellationToken>())
+      .Returns(Task.FromResult<IReadOnlyList<PersonalRecordDto>>([]));
 
     var result = await _handler.Handle(new GetPersonalRecordsQuery(_testFamilyMemberId), CancellationToken.None);
 
@@ -37,20 +37,14 @@ public class GetPersonalRecordsHandlerHandleTests
   }
 
   [Fact]
-  public async Task ReturnsRecordsComputedFromLoggedSessions()
+  public async Task ReturnsRecordsFromTheQueryService()
   {
     _familyMemberRepository.FirstOrDefaultAsync(Arg.Any<ISpecification<FamilyMember>>(), Arg.Any<CancellationToken>())
       .Returns(Task.FromResult<FamilyMember?>(new FamilyMember(FamilyMemberName.From("Ada"), Pin.From("1234"))));
 
-    var session = WorkoutSession.Log(
-      _testFamilyMemberId, Workout.A, TrainingPhase.From(1), new DateOnly(2026, 1, 1),
-      [
-        new LoggedLiftInput(Lift.Squat, WeightKg.From(60), [5, 5, 5]),
-        new LoggedLiftInput(Lift.Press, WeightKg.From(20), [5, 5, 5]),
-        new LoggedLiftInput(Lift.Deadlift, WeightKg.From(70), [5])
-      ]);
-    _workoutSessionRepository.ListAsync(Arg.Any<ISpecification<WorkoutSession>>(), Arg.Any<CancellationToken>())
-      .Returns(Task.FromResult<List<WorkoutSession>>([session]));
+    var record = new PersonalRecordDto(Lift.Squat, WeightKg.From(60), new DateOnly(2026, 1, 1), WorkoutSessionId.From(1));
+    _query.GetAsync(_testFamilyMemberId, Arg.Any<CancellationToken>())
+      .Returns(Task.FromResult<IReadOnlyList<PersonalRecordDto>>([record]));
 
     var result = await _handler.Handle(new GetPersonalRecordsQuery(_testFamilyMemberId), CancellationToken.None);
 

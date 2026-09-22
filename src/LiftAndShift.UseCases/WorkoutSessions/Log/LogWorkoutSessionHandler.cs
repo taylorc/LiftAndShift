@@ -64,8 +64,10 @@ public class LogWorkoutSessionHandler(
       });
     }
 
-    await _workoutSessionRepository.AddAsync(session, ct);
-
+    // The WorkWeight entities above were fetched tracked (no AsNoTracking), so mutating them here needs
+    // no explicit UpdateAsync - the single AddAsync(session, ...) below flushes the new session and
+    // every Work Weight change together in one SaveChanges round trip, instead of one extra round trip
+    // per lift.
     var liftOutcomes = new List<LiftOutcomeDto>();
     foreach (var lift in requestedLifts)
     {
@@ -82,9 +84,10 @@ public class LogWorkoutSessionHandler(
         deloaded = workWeight.RecordFailure();
       }
 
-      await _workWeightRepository.UpdateAsync(workWeight, ct);
       liftOutcomes.Add(new LiftOutcomeDto(lift, successful, workWeight.WeightKg, deloaded));
     }
+
+    await _workoutSessionRepository.AddAsync(session, ct);
 
     return ToDto(session, liftOutcomes);
   }

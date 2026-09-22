@@ -134,7 +134,10 @@ public class LogWorkoutSessionHandlerHandleTests
     squatOutcome.Successful.ShouldBeTrue();
     squatOutcome.Deloaded.ShouldBeFalse();
     squatOutcome.NewWeightKg.ShouldBe(WeightKg.From(35)); // 30 + Squat's 5kg progression increment
-    await _workWeightRepository.Received(3).UpdateAsync(Arg.Any<LiftAndShift.Core.WorkWeightAggregate.WorkWeight>(), Arg.Any<CancellationToken>());
+    // Work Weight changes are applied in memory on already-tracked entities and persisted by the
+    // session's own AddAsync/SaveChanges, not via an explicit UpdateAsync per lift - see
+    // LogWorkoutSessionHandler for why.
+    await _workoutSessionRepository.Received(1).AddAsync(Arg.Any<WorkoutSession>(), Arg.Any<CancellationToken>());
   }
 
   [Fact]

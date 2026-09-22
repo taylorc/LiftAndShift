@@ -7,7 +7,12 @@ namespace LiftAndShift.Core.WorkoutSessionAggregate;
 
 public class WorkoutSession : EntityBase<WorkoutSession, WorkoutSessionId>, IAggregateRoot
 {
-  private const int RequiredRepsPerSet = 5;
+  /// <summary>
+  /// The rep target every set must hit for <see cref="WasSuccessful"/> to consider a lift successful
+  /// for a session. The single source of truth for that threshold - reused wherever "successful" needs
+  /// to be decided in SQL (e.g. Personal Records) instead of via this method.
+  /// </summary>
+  public const int RequiredRepsPerSet = 5;
 
   private readonly List<LoggedSet> _loggedSets = [];
 
