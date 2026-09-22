@@ -10,13 +10,14 @@ const identity = useIdentityStore()
         <NuxtLink to="/" class="font-display text-3xl font-black tracking-tight text-iron">
           LiftAndShift
         </NuxtLink>
-        <NuxtLink
-          v-if="identity.familyMemberId"
-          to="/programme"
-          class="text-sm font-medium text-ink/70 transition-colors hover:text-iron"
-        >
-          Your Programme
-        </NuxtLink>
+        <template v-if="identity.familyMemberId">
+          <NuxtLink to="/programme" class="text-sm font-medium text-ink/70 transition-colors hover:text-iron">
+            Your Programme
+          </NuxtLink>
+          <NuxtLink to="/work-weights" class="text-sm font-medium text-ink/70 transition-colors hover:text-iron">
+            Work Weights
+          </NuxtLink>
+        </template>
       </div>
 
       <div v-if="identity.name" class="flex items-center gap-3 text-sm">
