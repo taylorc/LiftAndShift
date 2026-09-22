@@ -83,7 +83,7 @@ public class Log(IMediator mediator)
 public class LogWorkoutSessionRequest
 {
   public const string Route = "/FamilyMembers/{FamilyMemberId:int}/WorkoutSessions";
-  public static string BuildRoute(int familyMemberId) => Route.Replace("{FamilyMemberId:int}", familyMemberId.ToString());
+  public static string BuildRoute(int familyMemberId) => Route.BuildRoute(familyMemberId);
 
   public int FamilyMemberId { get; set; }
 
@@ -118,8 +118,7 @@ public class LogWorkoutSessionValidator : Validator<LogWorkoutSessionRequest>
 
     RuleFor(x => x.Workout)
       .NotEmpty()
-      .Must(name => Workout.TryFromName(name!, ignoreCase: true, out _))
-      .WithMessage("Workout must be 'A' or 'B'.");
+      .MustBeAKnownWorkout();
 
     RuleFor(x => x.LoggedLifts)
       .NotEmpty()
@@ -129,8 +128,7 @@ public class LogWorkoutSessionValidator : Validator<LogWorkoutSessionRequest>
     {
       loggedLift.RuleFor(l => l.Lift)
         .NotEmpty()
-        .Must(name => Lift.TryFromName(name!, ignoreCase: true, out _))
-        .WithMessage("Lift must be one of the known lifts.");
+        .MustBeAKnownLift();
 
       loggedLift.RuleFor(l => l.WeightKg)
         .GreaterThan(0);
@@ -148,13 +146,5 @@ public class LogWorkoutSessionValidator : Validator<LogWorkoutSessionRequest>
 public sealed class LogWorkoutSessionMapper
   : Mapper<LogWorkoutSessionRequest, WorkoutSessionRecord, WorkoutSessionDto>
 {
-  public override WorkoutSessionRecord FromEntity(WorkoutSessionDto e)
-    => new(
-      e.Id.Value,
-      e.FamilyMemberId.Value,
-      e.Workout.Name,
-      e.TrainingPhase.Value,
-      e.PerformedOn,
-      e.LoggedSets.Select(s => new LoggedSetRecord(s.Id.Value, s.Lift.Name, s.WeightKg.Value, s.SetNumber, s.RepsAchieved)).ToList(),
-      e.LiftOutcomes.Select(o => new LiftOutcomeRecord(o.Lift.Name, o.Successful, o.NewWeightKg.Value, o.Deloaded)).ToList());
+  public override WorkoutSessionRecord FromEntity(WorkoutSessionDto e) => WorkoutSessionRecord.FromDto(e);
 }

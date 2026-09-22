@@ -17,9 +17,7 @@ public class WorkoutSessionConfiguration : IEntityTypeConfiguration<WorkoutSessi
       .IsRequired();
 
     builder.Property(entity => entity.Workout)
-      .HasConversion(
-          workout => workout.Value,
-          value => Workout.FromValue(value))
+      .HasSmartEnumConversion()
       .IsRequired();
 
     builder.Property(entity => entity.TrainingPhase)

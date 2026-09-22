@@ -52,8 +52,7 @@ public class GetByFamilyMemberIdAndLift(IMediator mediator)
 public class GetWorkWeightRequest
 {
   public const string Route = "/FamilyMembers/{FamilyMemberId:int}/WorkWeights/{Lift}";
-  public static string BuildRoute(int familyMemberId, string lift) =>
-    Route.Replace("{FamilyMemberId:int}", familyMemberId.ToString()).Replace("{Lift}", lift);
+  public static string BuildRoute(int familyMemberId, string lift) => Route.BuildRoute(familyMemberId, lift);
 
   public int FamilyMemberId { get; set; }
   public string? Lift { get; set; }
@@ -68,8 +67,7 @@ public class GetWorkWeightValidator : Validator<GetWorkWeightRequest>
 
     RuleFor(x => x.Lift)
       .NotEmpty()
-      .Must(name => Lift.TryFromName(name!, ignoreCase: true, out _))
-      .WithMessage("Lift must be one of the known lifts.");
+      .MustBeAKnownLift();
   }
 }
 

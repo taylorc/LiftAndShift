@@ -57,8 +57,7 @@ public class CompleteRamp(IMediator mediator)
 public class CompleteRampRequest
 {
   public const string Route = "/FamilyMembers/{FamilyMemberId:int}/WorkWeights/{Lift}/CompleteRamp";
-  public static string BuildRoute(int familyMemberId, string lift) =>
-    Route.Replace("{FamilyMemberId:int}", familyMemberId.ToString()).Replace("{Lift}", lift);
+  public static string BuildRoute(int familyMemberId, string lift) => Route.BuildRoute(familyMemberId, lift);
 
   public int FamilyMemberId { get; set; }
   public string? Lift { get; set; }
@@ -76,8 +75,7 @@ public class CompleteRampValidator : Validator<CompleteRampRequest>
 
     RuleFor(x => x.Lift)
       .NotEmpty()
-      .Must(name => Lift.TryFromName(name!, ignoreCase: true, out _))
-      .WithMessage("Lift must be one of the known lifts.");
+      .MustBeAKnownLift();
 
     RuleFor(x => x.FinalSetNumber)
       .GreaterThan(0);

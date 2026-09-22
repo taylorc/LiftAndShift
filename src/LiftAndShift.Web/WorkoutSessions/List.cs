@@ -1,6 +1,7 @@
 using LiftAndShift.Core.FamilyMemberAggregate;
 using LiftAndShift.UseCases.WorkoutSessions;
 using LiftAndShift.UseCases.WorkoutSessions.List;
+using LiftAndShift.Web.Extensions;
 using FluentValidation;
 
 namespace LiftAndShift.Web.WorkoutSessions;
@@ -73,7 +74,7 @@ public class List(IMediator mediator) : Endpoint<ListWorkoutSessionsRequest, Wor
 public sealed class ListWorkoutSessionsRequest
 {
   public const string Route = "/FamilyMembers/{FamilyMemberId:int}/WorkoutSessions";
-  public static string BuildRoute(int familyMemberId) => Route.Replace("{FamilyMemberId:int}", familyMemberId.ToString());
+  public static string BuildRoute(int familyMemberId) => Route.BuildRoute(familyMemberId);
 
   public int FamilyMemberId { get; set; }
 

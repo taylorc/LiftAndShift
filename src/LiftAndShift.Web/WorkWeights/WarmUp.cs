@@ -58,8 +58,7 @@ public class WarmUp(IMediator mediator)
 public class GetWarmUpSetsRequest
 {
   public const string Route = "/FamilyMembers/{FamilyMemberId:int}/WorkWeights/{Lift}/WarmUp";
-  public static string BuildRoute(int familyMemberId, string lift) =>
-    Route.Replace("{FamilyMemberId:int}", familyMemberId.ToString()).Replace("{Lift}", lift);
+  public static string BuildRoute(int familyMemberId, string lift) => Route.BuildRoute(familyMemberId, lift);
 
   public int FamilyMemberId { get; set; }
   public string? Lift { get; set; }
@@ -74,8 +73,7 @@ public class GetWarmUpSetsValidator : Validator<GetWarmUpSetsRequest>
 
     RuleFor(x => x.Lift)
       .NotEmpty()
-      .Must(name => Lift.TryFromName(name!, ignoreCase: true, out _))
-      .WithMessage("Lift must be one of the known lifts.");
+      .MustBeAKnownLift();
   }
 }
 

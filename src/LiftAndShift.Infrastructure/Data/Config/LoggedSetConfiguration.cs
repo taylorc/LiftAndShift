@@ -13,9 +13,7 @@ public class LoggedSetConfiguration : IEntityTypeConfiguration<LoggedSet>
       .IsRequired();
 
     builder.Property(entity => entity.Lift)
-      .HasConversion(
-          lift => lift.Value,
-          value => Lift.FromValue(value))
+      .HasSmartEnumConversion()
       .IsRequired();
 
     builder.Property(entity => entity.WeightKg)

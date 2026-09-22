@@ -52,9 +52,7 @@ public class GetById(IMediator mediator)
 public class GetWorkoutSessionByIdRequest
 {
   public const string Route = "/FamilyMembers/{FamilyMemberId:int}/WorkoutSessions/{WorkoutSessionId:int}";
-  public static string BuildRoute(int familyMemberId, int workoutSessionId) =>
-    Route.Replace("{FamilyMemberId:int}", familyMemberId.ToString())
-         .Replace("{WorkoutSessionId:int}", workoutSessionId.ToString());
+  public static string BuildRoute(int familyMemberId, int workoutSessionId) => Route.BuildRoute(familyMemberId, workoutSessionId);
 
   public int FamilyMemberId { get; set; }
   public int WorkoutSessionId { get; set; }
@@ -72,13 +70,5 @@ public class GetWorkoutSessionByIdValidator : Validator<GetWorkoutSessionByIdReq
 public sealed class GetWorkoutSessionByIdMapper
   : Mapper<GetWorkoutSessionByIdRequest, WorkoutSessionRecord, WorkoutSessionDto>
 {
-  public override WorkoutSessionRecord FromEntity(WorkoutSessionDto e)
-    => new(
-      e.Id.Value,
-      e.FamilyMemberId.Value,
-      e.Workout.Name,
-      e.TrainingPhase.Value,
-      e.PerformedOn,
-      e.LoggedSets.Select(s => new LoggedSetRecord(s.Id.Value, s.Lift.Name, s.WeightKg.Value, s.SetNumber, s.RepsAchieved)).ToList(),
-      e.LiftOutcomes.Select(o => new LiftOutcomeRecord(o.Lift.Name, o.Successful, o.NewWeightKg.Value, o.Deloaded)).ToList());
+  public override WorkoutSessionRecord FromEntity(WorkoutSessionDto e) => WorkoutSessionRecord.FromDto(e);
 }
