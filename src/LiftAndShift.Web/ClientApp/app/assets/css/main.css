@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+/*
+ * LiftAndShift design tokens. See CONTEXT.md > Branding for the source palette.
+ * Industrial logbook aesthetic: ivory paper, iron/rust accents, condensed display
+ * numerals for weights and phases, hairline rules instead of cards/shadows.
+ */
+@theme {
+  --color-paper: #fffff0;
+  --color-ink: #221c18;
+  --color-iron: #cc5500;
+  --color-iron-dark: #8a3d0f;
+  --color-terracotta: #e2725b;
+  --color-chalk: #b9afa0;
+
+  --font-display: "Big Shoulders Display", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}

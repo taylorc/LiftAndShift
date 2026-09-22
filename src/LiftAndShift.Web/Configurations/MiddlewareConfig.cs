@@ -19,6 +19,8 @@ public static class MiddlewareConfig
       app.UseHsts();
     }
 
+    app.UseCors("ClientApp");
+
     app.UseFastEndpoints();
 
     if (app.Environment.IsDevelopment())
@@ -40,7 +42,12 @@ public static class MiddlewareConfig
       });
     }
 
-    app.UseHttpsRedirection(); // Note this will drop Authorization headers
+    if (!app.Environment.IsDevelopment())
+    {
+      app.UseHttpsRedirection(); // Note this will drop Authorization headers
+    }
+    // Skipped in Development so the plain-HTTP endpoint stays usable as-is - e.g. for the Nuxt dev
+    // server's SSR fetches, which would otherwise need to trust the ASP.NET Core dev cert.
 
     // Run migrations and seed in Development or when explicitly requested via environment variable
     var shouldMigrate = app.Environment.IsDevelopment() || 

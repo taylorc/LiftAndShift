@@ -11,6 +11,17 @@ public static class ServiceConfigs
     services.AddInfrastructureServices(builder.Configuration, logger)
             .AddMediatorSourceGen(logger);
 
+    // No auth cookies to worry about (see ADR 0001 - PIN identity is client-side only), so a plain
+    // AllowAnyOrigin policy is fine for this internally-hosted, family-only app.
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+    services.AddCors(options =>
+    {
+      options.AddPolicy("ClientApp", policy => policy
+        .WithOrigins(allowedOrigins)
+        .AllowAnyHeader()
+        .AllowAnyMethod());
+    });
+
     if (builder.Environment.IsDevelopment())
     {
       // Use a local test email server - configured in Aspire
