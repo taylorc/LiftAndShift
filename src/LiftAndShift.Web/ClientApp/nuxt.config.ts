@@ -22,8 +22,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       // Overridden in dev/prod via NUXT_PUBLIC_API_BASE (Aspire injects the discovered API URL).
-      // Plain HTTP locally so Nuxt's SSR fetch doesn't have to trust the ASP.NET Core dev cert.
-      apiBase: 'http://localhost:57680'
+      // scripts/dev.mjs makes Node trust the ASP.NET Core dev cert, so HTTPS works locally too.
+      apiBase: 'https://localhost:57679'
     }
   }
 })

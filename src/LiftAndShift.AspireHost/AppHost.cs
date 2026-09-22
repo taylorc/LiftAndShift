@@ -26,11 +26,10 @@ var web = builder.AddProject<Projects.LiftAndShift_Web>("web")
   .WithEnvironment("Papercut__Smtp__Url", papercut.GetEndpoint("smtp"))
   .WaitFor(papercut);
 
-// Nuxt frontend - `npm run dev`, pointed at the API's plain-HTTP endpoint (see MiddlewareConfig.cs
-// for why Development skips HTTPS redirection: Nuxt's SSR fetch runs in Node, which doesn't trust
-// the ASP.NET Core dev cert)
+// Nuxt frontend - `npm run dev` (scripts/dev.mjs), pointed at the API's HTTPS endpoint. That script
+// makes Node trust the ASP.NET Core dev cert, so no separate plain-HTTP endpoint is needed here.
 builder.AddJavaScriptApp("clientapp", "../LiftAndShift.Web/ClientApp", "dev")
-  .WithEnvironment("NUXT_PUBLIC_API_BASE", web.GetEndpoint("http"))
+  .WithEnvironment("NUXT_PUBLIC_API_BASE", web.GetEndpoint("https"))
   .WithHttpEndpoint(port: 3000, env: "PORT")
   .WithExternalHttpEndpoints()
   .WaitFor(web);
