@@ -109,6 +109,10 @@ public static class ResultExtensions
     {
       ResultStatus.Ok => TypedResults.Ok(mapResponse(result.Value)),
       ResultStatus.NotFound => TypedResults.NotFound(),
+      ResultStatus.Invalid => TypedResults.Problem(
+        title: $"{operationName} failed",
+        detail: string.Join("; ", result.ValidationErrors.Select(e => e.ErrorMessage)),
+        statusCode: StatusCodes.Status400BadRequest),
       _ => TypedResults.Problem(
         title: $"{operationName} failed",
         detail: string.Join("; ", result.Errors),

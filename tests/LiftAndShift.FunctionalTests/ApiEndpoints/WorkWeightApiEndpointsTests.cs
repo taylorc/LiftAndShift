@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using LiftAndShift.Infrastructure.Data;
 using LiftAndShift.Web.FamilyMembers;
 using LiftAndShift.Web.WorkWeights;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LiftAndShift.FunctionalTests.ApiEndpoints;
 
@@ -75,7 +76,7 @@ public class WorkWeightApiEndpointsTests(CustomWebApplicationFactory<Program> fa
   }
 
   [Fact]
-  public async Task CompletingRampTwiceForSameLiftReturnsBadRequest()
+  public async Task CompletingRampTwiceForSameLiftReturnsBadRequestWithAnExplanation()
   {
     int familyMemberId = await CreateFamilyMemberAsync("Hana", "5555");
     await CompleteRampAsync(familyMemberId, "Squat", finalSetNumber: 3);
@@ -83,6 +84,9 @@ public class WorkWeightApiEndpointsTests(CustomWebApplicationFactory<Program> fa
     var response = await CompleteRampAsync(familyMemberId, "Squat", finalSetNumber: 5);
 
     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>(TestContext.Current.CancellationToken);
+    problem!.Detail.ShouldNotBeNullOrWhiteSpace();
+    problem.Detail.ShouldContain("already been Ramped");
   }
 
   [Fact]
