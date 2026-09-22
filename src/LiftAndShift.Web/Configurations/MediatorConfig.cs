@@ -1,4 +1,5 @@
 ﻿using Ardalis.SharedKernel;
+using LiftAndShift.Core.Behaviors;
 using LiftAndShift.Core.ContributorAggregate;
 using LiftAndShift.Infrastructure;
 using LiftAndShift.UseCases.Contributors.Create;
@@ -29,7 +30,8 @@ public static class MediatorConfig
       // Register pipeline behaviors here (order matters)
       options.PipelineBehaviors =
       [
-        typeof(LoggingBehavior<,>)
+        typeof(LoggingBehavior<,>),
+        typeof(TransactionBehavior<,>)
       ];
 
       // If you have stream behaviors:

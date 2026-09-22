@@ -34,7 +34,8 @@ public static class InfrastructureServiceExtensions
            .AddScoped<IDeleteContributorService, DeleteContributorService>()
            .AddScoped<IListFamilyMembersQueryService, ListFamilyMembersQueryService>()
            .AddScoped<IListWorkoutSessionsQueryService, ListWorkoutSessionsQueryService>()
-           .AddScoped<IPersonalRecordsQueryService, PersonalRecordsQueryService>();
+           .AddScoped<IPersonalRecordsQueryService, PersonalRecordsQueryService>()
+           .AddScoped<IUnitOfWork, UnitOfWork>();
 
     logger.LogInformation("{Project} services registered", "Infrastructure");
 

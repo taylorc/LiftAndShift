@@ -1,6 +1,8 @@
 ﻿global using System.Runtime.CompilerServices;
 global using Ardalis.SharedKernel;
+global using LiftAndShift.Core.Behaviors;
 global using LiftAndShift.Core.ContributorAggregate;
+global using LiftAndShift.Core.Interfaces;
 global using LiftAndShift.Core.FamilyMemberAggregate;
 global using LiftAndShift.Core.Lifts;
 global using LiftAndShift.Core.ProgrammeAggregate;
