@@ -10,6 +10,11 @@ interface WorkWeight {
   weightKg: number
 }
 
+interface WarmUpSet {
+  weightKg: number
+  reps: number
+}
+
 const identity = useIdentityStore()
 const api = useApi()
 
@@ -49,6 +54,7 @@ const currentSetWeight = computed(() => {
 })
 
 function startRamp(lift: Lift) {
+  warmingUpLift.value = null
   rampingLift.value = lift
   currentSet.value = 1
   rampError.value = null
@@ -79,24 +85,52 @@ async function finishRamp() {
     submitting.value = false
   }
 }
+
+const warmingUpLift = ref<Lift | null>(null)
+const warmUpSets = ref<WarmUpSet[]>([])
+const warmUpLoading = ref(false)
+
+async function toggleWarmUp(lift: Lift) {
+  if (warmingUpLift.value?.id === lift.id) {
+    warmingUpLift.value = null
+    return
+  }
+
+  rampingLift.value = null
+  warmingUpLift.value = lift
+  warmUpLoading.value = true
+  try {
+    warmUpSets.value = await api<WarmUpSet[]>(`/FamilyMembers/${identity.familyMemberId}/WorkWeights/${lift.name}/WarmUp`)
+  } finally {
+    warmUpLoading.value = false
+  }
+}
 </script>
 
 <template>
   <div class="max-w-xl">
     <h1 class="font-display text-5xl font-black tracking-tight">Work Weights</h1>
     <p class="mt-1 text-sm text-ink/60">
-      Training as {{ identity.name }}. Ramp a lift the first time you do it to set its Work Weight.
+      Training as {{ identity.name }}. Ramp a lift the first time you do it; after that, check its warm-up here.
     </p>
 
     <ul class="mt-8 border-t border-chalk">
       <template v-for="lift in lifts ?? []" :key="lift.id">
-        <li class="border-b border-chalk border-l-4" :class="rampingLift?.id === lift.id ? 'border-l-iron' : 'border-l-transparent'">
+        <li
+          class="border-b border-chalk border-l-4"
+          :class="(rampingLift?.id === lift.id || warmingUpLift?.id === lift.id) ? 'border-l-iron' : 'border-l-transparent'"
+        >
           <div class="flex items-center justify-between py-4 pl-4 pr-2">
             <span class="font-display text-2xl font-bold">{{ formatLiftName(lift.name) }}</span>
 
-            <span v-if="workWeights[lift.name] != null" class="font-display text-2xl font-bold text-iron">
+            <button
+              v-if="workWeights[lift.name] != null"
+              type="button"
+              class="font-display text-2xl font-bold text-iron transition-colors hover:text-iron-dark"
+              @click="toggleWarmUp(lift)"
+            >
               {{ workWeights[lift.name] }}kg
-            </span>
+            </button>
             <button
               v-else-if="rampingLift?.id !== lift.id"
               type="button"
@@ -138,6 +172,21 @@ async function finishRamp() {
               </button>
             </div>
             <p v-if="rampError" class="mt-3 text-sm text-terracotta">{{ rampError }}</p>
+          </div>
+
+          <div v-if="warmingUpLift?.id === lift.id" class="pb-6 pl-4 pr-2">
+            <span class="text-sm font-medium tracking-widest text-ink/50">WARM-UP</span>
+            <p v-if="warmUpLoading" class="mt-2 text-ink/60">Loading…</p>
+            <ol v-else class="mt-2 divide-y divide-chalk">
+              <li v-for="(set, index) in warmUpSets" :key="index" class="flex items-baseline justify-between py-2">
+                <span class="text-sm text-ink/50">Set {{ index + 1 }}</span>
+                <span class="font-display text-xl font-bold">{{ set.weightKg }}kg <span class="text-sm font-normal text-ink/50">× {{ set.reps }}</span></span>
+              </li>
+              <li class="flex items-baseline justify-between py-2">
+                <span class="text-sm text-ink/50">Work sets</span>
+                <span class="font-display text-xl font-bold text-iron">{{ workWeights[lift.name] }}kg</span>
+              </li>
+            </ol>
           </div>
         </li>
       </template>
