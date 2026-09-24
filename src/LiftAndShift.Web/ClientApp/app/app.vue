@@ -11,6 +11,9 @@ const identity = useIdentityStore()
           LiftAndShift
         </NuxtLink>
         <template v-if="identity.familyMemberId">
+          <NuxtLink to="/log" class="text-sm font-semibold text-iron transition-colors hover:text-iron-dark">
+            Log Workout
+          </NuxtLink>
           <NuxtLink to="/programme" class="text-sm font-medium text-ink/70 transition-colors hover:text-iron">
             Your Programme
           </NuxtLink>

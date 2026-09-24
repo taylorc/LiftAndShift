@@ -17,9 +17,11 @@ public class LiftsApiEndpointsTests(CustomWebApplicationFactory<Program> factory
     var deadlift = lifts.Single(l => l.Name == "Deadlift");
     deadlift.OpeningWeightKg.ShouldBe(70);
     deadlift.IncrementKg.ShouldBe(10);
+    deadlift.WorkSetCount.ShouldBe(1);
 
     var squat = lifts.Single(l => l.Name == "Squat");
     squat.OpeningWeightKg.ShouldBe(20);
     squat.IncrementKg.ShouldBe(5);
+    squat.WorkSetCount.ShouldBe(3);
   }
 }

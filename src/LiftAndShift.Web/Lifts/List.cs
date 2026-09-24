@@ -13,7 +13,7 @@ public class List(IMediator mediator) : EndpointWithoutRequest<IEnumerable<LiftR
     {
       s.Summary = "List the fixed Lift catalogue";
       s.Description = "Retrieves every Lift in the Programme along with its fixed Ramp opening weight and increment.";
-      s.ResponseExamples[200] = new List<LiftRecord> { new(1, "Squat", 20, 5), new(4, "Deadlift", 70, 10) };
+      s.ResponseExamples[200] = new List<LiftRecord> { new(1, "Squat", 20, 5, 3), new(4, "Deadlift", 70, 10, 1) };
 
       s.Responses[200] = "Lift catalogue returned successfully";
     });
@@ -27,7 +27,7 @@ public class List(IMediator mediator) : EndpointWithoutRequest<IEnumerable<LiftR
   public override async Task HandleAsync(CancellationToken cancellationToken)
   {
     var lifts = await mediator.Send(new ListLiftsQuery(), cancellationToken);
-    var response = lifts.Select(lift => new LiftRecord(lift.Id, lift.Name, lift.OpeningWeightKg, lift.IncrementKg));
+    var response = lifts.Select(lift => new LiftRecord(lift.Id, lift.Name, lift.OpeningWeightKg, lift.IncrementKg, lift.WorkSetCount));
 
     await Send.OkAsync(response, cancellationToken);
   }

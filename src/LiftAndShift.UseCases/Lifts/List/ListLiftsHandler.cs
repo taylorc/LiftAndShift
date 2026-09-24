@@ -7,7 +7,7 @@ public class ListLiftsHandler : IQueryHandler<ListLiftsQuery, IReadOnlyList<Lift
   public ValueTask<IReadOnlyList<LiftDto>> Handle(ListLiftsQuery request, CancellationToken cancellationToken)
   {
     IReadOnlyList<LiftDto> lifts = Lift.List
-      .Select(lift => new LiftDto(lift.Value, lift.Name, lift.OpeningWeightKg, lift.IncrementKg))
+      .Select(lift => new LiftDto(lift.Value, lift.Name, lift.OpeningWeightKg, lift.IncrementKg, lift.WorkSetCount))
       .ToList();
 
     return ValueTask.FromResult(lifts);
