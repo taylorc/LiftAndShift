@@ -20,6 +20,9 @@ const identity = useIdentityStore()
           <NuxtLink to="/work-weights" class="text-sm font-medium text-ink/70 transition-colors hover:text-iron">
             Work Weights
           </NuxtLink>
+          <NuxtLink to="/personal-records" class="text-sm font-medium text-ink/70 transition-colors hover:text-iron">
+            Records
+          </NuxtLink>
         </template>
       </div>
 
