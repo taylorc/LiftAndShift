@@ -1,10 +1,5 @@
 <script setup lang="ts">
-interface PersonalRecord {
-  lift: string
-  weightKg: number
-  achievedOn: string
-  workoutSessionId: number
-}
+import type { PersonalRecord } from '~/types'
 
 const identity = useIdentityStore()
 const api = useApi()
@@ -18,10 +13,6 @@ const { data: records, status } = await useAsyncData('personal-records', () =>
 )
 
 const sortedRecords = computed(() => [...(records.value ?? [])].sort((a, b) => b.weightKg - a.weightKg))
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
-}
 </script>
 
 <template>

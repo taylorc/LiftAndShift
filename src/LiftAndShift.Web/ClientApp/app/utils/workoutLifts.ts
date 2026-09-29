@@ -12,5 +12,5 @@ export function liftsForWorkout(workout: 'A' | 'B', trainingPhase: number): stri
     return ['Squat', 'Press', 'Deadlift']
   }
 
-  return ['Squat', 'BenchPress', PHASE_THIRD_LIFT[trainingPhase]]
+  return ['Squat', 'BenchPress', PHASE_THIRD_LIFT[trainingPhase] ?? PHASE_THIRD_LIFT[1]!]
 }

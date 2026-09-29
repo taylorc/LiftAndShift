@@ -1,15 +1,5 @@
 <script setup lang="ts">
-interface Programme {
-  id: number
-  familyMemberId: number
-  trainingPhase: number
-}
-
-const PHASE_LIFT: Record<number, string> = {
-  1: 'Deadlift',
-  2: 'Row',
-  3: 'Lat Pulldown'
-}
+import type { Programme } from '~/types'
 
 const identity = useIdentityStore()
 const api = useApi()
@@ -55,7 +45,9 @@ async function advancePhase() {
         <div class="font-display text-9xl font-black leading-none text-iron">{{ programme.trainingPhase }}</div>
         <p class="mt-2 text-ink/70">
           Workout B's third lift is
-          <strong class="font-semibold text-ink">{{ PHASE_LIFT[programme.trainingPhase] }}</strong>.
+          <strong class="font-semibold text-ink">{{
+            formatLiftName(liftsForWorkout('B', programme.trainingPhase)[2]!)
+          }}</strong>.
         </p>
       </div>
 
