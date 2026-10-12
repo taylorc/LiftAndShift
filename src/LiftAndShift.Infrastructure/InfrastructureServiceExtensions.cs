@@ -2,6 +2,7 @@
 using LiftAndShift.Core.Services;
 using LiftAndShift.Infrastructure.Data;
 using LiftAndShift.Infrastructure.Data.Queries;
+using LiftAndShift.UseCases.BodyMetrics.List;
 using LiftAndShift.UseCases.Contributors.List;
 using LiftAndShift.UseCases.FamilyMembers.List;
 using LiftAndShift.UseCases.PersonalRecords.Get;
@@ -35,6 +36,7 @@ public static class InfrastructureServiceExtensions
            .AddScoped<IListFamilyMembersQueryService, ListFamilyMembersQueryService>()
            .AddScoped<IListWorkoutSessionsQueryService, ListWorkoutSessionsQueryService>()
            .AddScoped<IPersonalRecordsQueryService, PersonalRecordsQueryService>()
+           .AddScoped<IListBodyMetricsQueryService, ListBodyMetricsQueryService>()
            .AddScoped<IUnitOfWork, UnitOfWork>();
 
     logger.LogInformation("{Project} services registered", "Infrastructure");

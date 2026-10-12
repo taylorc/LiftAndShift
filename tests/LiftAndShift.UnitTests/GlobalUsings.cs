@@ -1,5 +1,6 @@
 ﻿global using System.Runtime.CompilerServices;
 global using Ardalis.SharedKernel;
+global using LiftAndShift.Core.BodyMetricAggregate;
 global using LiftAndShift.Core.Behaviors;
 global using LiftAndShift.Core.ContributorAggregate;
 global using LiftAndShift.Core.Interfaces;
@@ -9,6 +10,9 @@ global using LiftAndShift.Core.ProgrammeAggregate;
 global using LiftAndShift.Core.Workouts;
 global using LiftAndShift.Core.WorkoutSessionAggregate;
 global using LiftAndShift.Core.WorkWeightAggregate;
+global using LiftAndShift.UseCases.BodyMetrics;
+global using LiftAndShift.UseCases.BodyMetrics.Get;
+global using LiftAndShift.UseCases.BodyMetrics.Log;
 global using LiftAndShift.UseCases.Contributors.Create;
 global using LiftAndShift.UseCases.FamilyMembers.Create;
 global using LiftAndShift.UseCases.FamilyMembers.Get;

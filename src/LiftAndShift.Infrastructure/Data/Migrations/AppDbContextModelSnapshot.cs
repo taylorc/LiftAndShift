@@ -17,6 +17,25 @@ namespace LiftAndShift.Infrastructure.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
 
+            modelBuilder.Entity("LiftAndShift.Core.BodyMetricAggregate.BodyMetric", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("BodyWeightKg")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FamilyMemberId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateOnly>("RecordedOn")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BodyMetrics");
+                });
+
             modelBuilder.Entity("LiftAndShift.Core.ContributorAggregate.Contributor", b =>
                 {
                     b.Property<int>("Id")

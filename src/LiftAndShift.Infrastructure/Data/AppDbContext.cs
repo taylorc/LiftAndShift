@@ -1,4 +1,5 @@
-﻿using LiftAndShift.Core.ContributorAggregate;
+﻿using LiftAndShift.Core.BodyMetricAggregate;
+using LiftAndShift.Core.ContributorAggregate;
 using LiftAndShift.Core.FamilyMemberAggregate;
 using LiftAndShift.Core.ProgrammeAggregate;
 using LiftAndShift.Core.WorkoutSessionAggregate;
@@ -13,6 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
   public DbSet<WorkWeight> WorkWeights => Set<WorkWeight>();
   public DbSet<WorkoutSession> WorkoutSessions => Set<WorkoutSession>();
   public DbSet<LoggedSet> LoggedSets => Set<LoggedSet>();
+  public DbSet<BodyMetric> BodyMetrics => Set<BodyMetric>();
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {

@@ -1,4 +1,5 @@
-﻿using LiftAndShift.Core.ContributorAggregate;
+﻿using LiftAndShift.Core.BodyMetricAggregate;
+using LiftAndShift.Core.ContributorAggregate;
 using LiftAndShift.Core.FamilyMemberAggregate;
 using LiftAndShift.Core.ProgrammeAggregate;
 using LiftAndShift.Core.WorkoutSessionAggregate;
@@ -18,4 +19,5 @@ namespace LiftAndShift.Infrastructure.Data.Config;
 [EfCoreConverter<WeightKg>]
 [EfCoreConverter<WorkoutSessionId>]
 [EfCoreConverter<LoggedSetId>]
+[EfCoreConverter<BodyMetricId>]
 internal partial class VogenEfCoreConverters;
