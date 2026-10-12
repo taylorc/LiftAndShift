@@ -67,19 +67,11 @@ public static class MiddlewareConfig
     {
       logger.LogInformation("Applying database migrations...");
       var context = services.GetRequiredService<AppDbContext>();
-      
-      // For SQLite, use EnsureCreated instead of migrations (common for dev/local scenarios)
-      // For SQL Server, use migrations (production scenario)
-      if (context.Database.IsSqlite())
-      {
-        await context.Database.EnsureCreatedAsync();
-        logger.LogInformation("SQLite database created successfully");
-      }
-      else
-      {
-        await context.Database.MigrateAsync();
-        logger.LogInformation("Database migrations applied successfully");
-      }
+
+      // Migrate rather than EnsureCreated, even for local SQLite: EnsureCreated only ever builds a
+      // brand-new database, so an existing dev database silently misses every table added later.
+      await context.Database.MigrateAsync();
+      logger.LogInformation("Database migrations applied successfully");
     }
     catch (Exception ex)
     {
