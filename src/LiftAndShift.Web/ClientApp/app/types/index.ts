@@ -47,3 +47,9 @@ export interface PersonalRecord {
   achievedOn: string
   workoutSessionId: number
 }
+
+export interface BodyMetric {
+  id: number
+  recordedOn: string
+  bodyWeightKg: number
+}
