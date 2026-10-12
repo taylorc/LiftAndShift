@@ -12,7 +12,7 @@ const emit = defineEmits<{
   submit: [payload: { performedOn: string; loggedLifts: { lift: string; weightKg: number; repsPerSet: number[] }[] }]
 }>()
 
-const performedOn = ref(new Date().toISOString().slice(0, 10))
+const performedOn = ref(todayIsoDate())
 const repsBySet = ref<Record<string, number[]>>({})
 
 watch(
