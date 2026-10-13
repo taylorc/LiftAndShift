@@ -23,7 +23,11 @@ public class AdvancePhase(IMediator mediator)
       s.Summary = "Advance a family member's Training Phase";
       s.Description = "Manually advances the family member's Programme to the next Training Phase (1 to 2, or 2 to 3). Fails if already at the final Training Phase.";
       s.ExampleRequest = new AdvanceTrainingPhaseRequest { FamilyMemberId = 1 };
-      s.ResponseExamples[200] = new ProgrammeRecord(1, 1, 2);
+      s.ResponseExamples[200] = new ProgrammeRecord(1, 1, 2, new Dictionary<string, IReadOnlyList<string>>
+      {
+        ["A"] = ["Squat", "Press", "Deadlift"],
+        ["B"] = ["Squat", "BenchPress", "Row"]
+      });
 
       s.Responses[200] = "Training Phase advanced successfully";
       s.Responses[404] = "Family member (or their Programme) not found";
@@ -60,5 +64,5 @@ public sealed class AdvanceTrainingPhaseMapper
   : Mapper<AdvanceTrainingPhaseRequest, ProgrammeRecord, ProgrammeDto>
 {
   public override ProgrammeRecord FromEntity(ProgrammeDto e)
-    => new(e.Id.Value, e.FamilyMemberId.Value, e.TrainingPhase.Value);
+    => ProgrammeRecord.FromDto(e);
 }

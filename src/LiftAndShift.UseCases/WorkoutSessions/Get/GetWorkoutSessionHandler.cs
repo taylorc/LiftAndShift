@@ -21,7 +21,7 @@ public class GetWorkoutSessionHandler(IReadRepository<WorkoutSession> _repositor
       entity.TrainingPhase,
       entity.PerformedOn,
       entity.LoggedSets
-        .Select(s => new LoggedSetDto(s.Id, s.Lift, s.WeightKg, s.SetNumber, s.RepsAchieved))
+        .Select(LoggedSetDto.FromEntity)
         .ToList(),
       []);
   }

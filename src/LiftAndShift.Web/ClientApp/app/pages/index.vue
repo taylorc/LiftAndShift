@@ -24,24 +24,24 @@ async function addFamilyMember(payload: { name: string; pin: string }) {
   }
 }
 
-const pendingMember = ref<FamilyMember | null>(null)
+const pendingFamilyMember = ref<FamilyMember | null>(null)
 const pinError = ref<string | null>(null)
 
-function startSelecting(member: FamilyMember) {
-  pendingMember.value = member
+function startSelecting(familyMember: FamilyMember) {
+  pendingFamilyMember.value = familyMember
   pinError.value = null
 }
 
 function cancelSelecting() {
-  pendingMember.value = null
+  pendingFamilyMember.value = null
   pinError.value = null
 }
 
 function confirmSelection(pin: string) {
-  if (!pendingMember.value) return
+  if (!pendingFamilyMember.value) return
 
-  if (pin === pendingMember.value.pin) {
-    identity.select(pendingMember.value.id, pendingMember.value.name)
+  if (pin === pendingFamilyMember.value.pin) {
+    identity.select(pendingFamilyMember.value.id, pendingFamilyMember.value.name)
     cancelSelecting()
   } else {
     pinError.value = "That PIN doesn't match. Try again."
@@ -55,23 +55,23 @@ function confirmSelection(pin: string) {
     <p class="mt-1 text-sm text-ink/60">Everyone training on this bar. Pick your name to switch to you.</p>
 
     <ul class="mt-8 border-t border-chalk">
-      <template v-for="member in familyMembers?.items ?? []" :key="member.id">
-        <li class="border-b border-chalk border-l-4" :class="identity.familyMemberId === member.id ? 'border-l-iron' : 'border-l-transparent'">
+      <template v-for="familyMember in familyMembers?.items ?? []" :key="familyMember.id">
+        <li class="border-b border-chalk border-l-4" :class="identity.familyMemberId === familyMember.id ? 'border-l-iron' : 'border-l-transparent'">
           <button
             type="button"
             class="flex w-full items-center justify-between py-4 pl-4 pr-2 text-left transition-colors hover:border-l-iron"
-            :disabled="identity.familyMemberId === member.id"
-            @click="startSelecting(member)"
+            :disabled="identity.familyMemberId === familyMember.id"
+            @click="startSelecting(familyMember)"
           >
-            <span class="font-display text-2xl font-bold">{{ member.name }}</span>
+            <span class="font-display text-2xl font-bold">{{ familyMember.name }}</span>
             <span class="text-sm tracking-widest text-ink/50">
-              {{ identity.familyMemberId === member.id ? 'This is you' : 'PIN ••••' }}
+              {{ identity.familyMemberId === familyMember.id ? 'This is you' : 'PIN ••••' }}
             </span>
           </button>
 
           <PinEntryForm
-            v-if="pendingMember?.id === member.id"
-            :member-name="member.name"
+            v-if="pendingFamilyMember?.id === familyMember.id"
+            :family-member-name="familyMember.name"
             :error="pinError"
             @submit="confirmSelection"
             @cancel="cancelSelecting"

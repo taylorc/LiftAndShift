@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Lift } from '~/types'
+import type { Lift, WorkWeightsByLift } from '~/types'
 
 const identity = useIdentityStore()
 const api = useApi()
@@ -11,7 +11,7 @@ if (!identity.familyMemberId) {
 
 const { data: lifts } = await useAsyncData('lifts', () => api<Lift[]>('/Lifts'))
 
-const workWeights = ref<Record<string, number | null>>({})
+const workWeights = ref<WorkWeightsByLift>({})
 
 async function loadWorkWeights() {
   if (!lifts.value) return

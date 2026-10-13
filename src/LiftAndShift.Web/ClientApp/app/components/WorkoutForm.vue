@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import type { Lift } from '~/types'
+import type { Lift, LiftName, WorkoutSessionInput, WorkWeightsByLift } from '~/types'
 
 const props = defineProps<{
   liftsInWorkout: Lift[]
-  workWeights: Record<string, number | null>
+  workWeights: WorkWeightsByLift
   submitting: boolean
   submitError: string | null
 }>()
 
 const emit = defineEmits<{
-  submit: [payload: { performedOn: string; loggedLifts: { lift: string; weightKg: number; repsPerSet: number[] }[] }]
+  submit: [payload: WorkoutSessionInput]
 }>()
 
 const performedOn = ref(todayIsoDate())
-const repsBySet = ref<Record<string, number[]>>({})
+const repsBySet = ref<Record<LiftName, number[]>>({})
 
 watch(
   () => props.liftsInWorkout,

@@ -23,7 +23,11 @@ public class GetByFamilyMemberId(IMediator mediator)
       s.Summary = "Get a family member's Programme";
       s.Description = "Retrieves the Programme (current Training Phase) for the specified family member.";
       s.ExampleRequest = new GetProgrammeByFamilyMemberIdRequest { FamilyMemberId = 1 };
-      s.ResponseExamples[200] = new ProgrammeRecord(1, 1, 1);
+      s.ResponseExamples[200] = new ProgrammeRecord(1, 1, 1, new Dictionary<string, IReadOnlyList<string>>
+      {
+        ["A"] = ["Squat", "Press", "Deadlift"],
+        ["B"] = ["Squat", "BenchPress", "Deadlift"]
+      });
 
       s.Responses[200] = "Programme found and returned successfully";
       s.Responses[404] = "Family member (or their Programme) not found";
@@ -58,5 +62,5 @@ public sealed class GetProgrammeByFamilyMemberIdMapper
   : Mapper<GetProgrammeByFamilyMemberIdRequest, ProgrammeRecord, ProgrammeDto>
 {
   public override ProgrammeRecord FromEntity(ProgrammeDto e)
-    => new(e.Id.Value, e.FamilyMemberId.Value, e.TrainingPhase.Value);
+    => ProgrammeRecord.FromDto(e);
 }

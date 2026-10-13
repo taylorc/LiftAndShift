@@ -27,11 +27,7 @@ public class LogWorkoutSessionHandler(
     var unrampedLift = requestedLifts.FirstOrDefault(lift => !workWeightsByLift.ContainsKey(lift));
     if (unrampedLift != null)
     {
-      return Result.Invalid(new ValidationError
-      {
-        Identifier = nameof(command.LoggedLifts),
-        ErrorMessage = $"{unrampedLift.Name} has not been Ramped for this family member yet."
-      });
+      return InvalidLoggedLifts($"{unrampedLift.Name} has not been Ramped for this family member yet.");
     }
 
     // Progression/deload trusts the logged weight to decide what the *next* Work Weight should be,
@@ -42,11 +38,8 @@ public class LogWorkoutSessionHandler(
     if (mismatchedLift != null)
     {
       var currentWeight = workWeightsByLift[mismatchedLift.Lift].WeightKg;
-      return Result.Invalid(new ValidationError
-      {
-        Identifier = nameof(command.LoggedLifts),
-        ErrorMessage = $"{mismatchedLift.Lift.Name} must be logged at its current Work Weight ({currentWeight.Value}kg), not {mismatchedLift.WeightKg.Value}kg."
-      });
+      return InvalidLoggedLifts(
+        $"{mismatchedLift.Lift.Name} must be logged at its current Work Weight ({currentWeight.Value}kg), not {mismatchedLift.WeightKg.Value}kg.");
     }
 
     WorkoutSession session;
@@ -57,11 +50,7 @@ public class LogWorkoutSessionHandler(
     }
     catch (ArgumentException ex)
     {
-      return Result.Invalid(new ValidationError
-      {
-        Identifier = nameof(command.LoggedLifts),
-        ErrorMessage = ex.Message
-      });
+      return InvalidLoggedLifts(ex.Message);
     }
 
     // The WorkWeight entities above were fetched tracked (no AsNoTracking), so mutating them here needs
@@ -92,6 +81,13 @@ public class LogWorkoutSessionHandler(
     return ToDto(session, liftOutcomes);
   }
 
+  private static Result<WorkoutSessionDto> InvalidLoggedLifts(string errorMessage) =>
+    Result.Invalid(new ValidationError
+    {
+      Identifier = nameof(LogWorkoutSessionCommand.LoggedLifts),
+      ErrorMessage = errorMessage
+    });
+
   private static WorkoutSessionDto ToDto(WorkoutSession session, IReadOnlyList<LiftOutcomeDto> liftOutcomes) =>
     new(
       session.Id,
@@ -100,7 +96,7 @@ public class LogWorkoutSessionHandler(
       session.TrainingPhase,
       session.PerformedOn,
       session.LoggedSets
-        .Select(s => new LoggedSetDto(s.Id, s.Lift, s.WeightKg, s.SetNumber, s.RepsAchieved))
+        .Select(LoggedSetDto.FromEntity)
         .ToList(),
       liftOutcomes);
 }

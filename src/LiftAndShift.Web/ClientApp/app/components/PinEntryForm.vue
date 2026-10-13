@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{ memberName: string; error: string | null }>()
+defineProps<{ familyMemberName: string; error: string | null }>()
 const emit = defineEmits<{ submit: [pin: string]; cancel: [] }>()
 
 const pin = ref('')
@@ -14,7 +14,7 @@ function submit() {
   <div>
     <form class="flex items-end gap-3 pb-4 pl-4" @submit.prevent="submit">
       <label class="flex flex-col gap-1">
-        <span class="text-sm font-medium text-ink/70">Enter {{ memberName }}'s PIN</span>
+        <span class="text-sm font-medium text-ink/70">Enter {{ familyMemberName }}'s PIN</span>
         <input
           v-model="pin"
           type="text"

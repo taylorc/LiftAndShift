@@ -45,9 +45,7 @@ async function advancePhase() {
         <div class="font-display text-9xl font-black leading-none text-iron">{{ programme.trainingPhase }}</div>
         <p class="mt-2 text-ink/70">
           Workout B's third lift is
-          <strong class="font-semibold text-ink">{{
-            formatLiftName(liftsForWorkout('B', programme.trainingPhase)[2]!)
-          }}</strong>.
+          <strong class="font-semibold text-ink">{{ formatLiftName(programme.workoutLifts.B[2]!) }}</strong>.
         </p>
       </div>
 
