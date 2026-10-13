@@ -1,4 +1,10 @@
 using System.Net.Http.Json;
+using LiftAndShift.Core.FamilyMemberAggregate;
+using LiftAndShift.Core.Lifts;
+using LiftAndShift.Core.ProgrammeAggregate;
+using LiftAndShift.Core.Workouts;
+using LiftAndShift.Core.WorkoutSessionAggregate;
+using LiftAndShift.Core.WorkWeightAggregate;
 using LiftAndShift.Infrastructure.Data;
 using LiftAndShift.Web.FamilyMembers;
 using LiftAndShift.Web.PersonalRecords;
@@ -11,6 +17,7 @@ namespace LiftAndShift.FunctionalTests.ApiEndpoints;
 public class PersonalRecordApiEndpointsTests(CustomWebApplicationFactory<Program> factory) : IClassFixture<CustomWebApplicationFactory<Program>>
 {
   private readonly HttpClient _client = factory.CreateClient();
+  private readonly CustomWebApplicationFactory<Program> _factory = factory;
   private static readonly DateOnly Day1 = new(2026, 9, 1);
   private static readonly DateOnly Day2 = new(2026, 9, 8);
   private static readonly DateOnly Day3 = new(2026, 9, 15);
@@ -113,6 +120,51 @@ public class PersonalRecordApiEndpointsTests(CustomWebApplicationFactory<Program
 
     var records = await GetPersonalRecordsAsync(familyMemberId);
     records.Single(r => r.Lift == "Squat").WeightKg.ShouldBe(30); // the record set on Day1 still stands, unaffected by the deload
+  }
+
+  [Fact]
+  public async Task AHeavierFailedSessionDoesNotBecomeTheRecord()
+  {
+    int familyMemberId = await CreateFamilyMemberAsync("Abe", "6666");
+    await RampWorkoutALiftsAsync(familyMemberId); // Squat opens at 30kg
+
+    await LogWorkoutASessionAsync(familyMemberId, Day1, squatFinalRep: 5); // logged at 30kg, succeeds -> Squat becomes 35kg
+    await LogWorkoutASessionAsync(familyMemberId, Day2, squatFinalRep: 3); // logged at 35kg, fails
+
+    var squatRecord = (await GetPersonalRecordsAsync(familyMemberId)).Single(r => r.Lift == "Squat");
+    squatRecord.WeightKg.ShouldBe(30); // the heavier 35kg session missed a set, so it isn't a record
+    squatRecord.AchievedOn.ShouldBe(Day1);
+  }
+
+  [Fact]
+  public async Task ATieAtTheRecordWeightKeepsTheEarliestDate()
+  {
+    int familyMemberId = await CreateFamilyMemberAsync("Bea", "7777");
+
+    // Two successful sessions at the same Squat weight can't be produced through the API (a success
+    // always progresses Work Weight, and a session must be logged at the current one), so they're
+    // seeded directly. The later date is inserted first so insertion order can't decide the tie.
+    await SeedSuccessfulWorkoutASessionAsync(familyMemberId, Day3, squatWeightKg: 50);
+    await SeedSuccessfulWorkoutASessionAsync(familyMemberId, Day1, squatWeightKg: 50);
+
+    var squatRecord = (await GetPersonalRecordsAsync(familyMemberId)).Single(r => r.Lift == "Squat");
+    squatRecord.WeightKg.ShouldBe(50);
+    squatRecord.AchievedOn.ShouldBe(Day1);
+  }
+
+  private async Task SeedSuccessfulWorkoutASessionAsync(int familyMemberId, DateOnly performedOn, decimal squatWeightKg)
+  {
+    using var scope = _factory.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    db.WorkoutSessions.Add(WorkoutSession.Log(
+      FamilyMemberId.From(familyMemberId), Workout.A, TrainingPhase.From(1), performedOn,
+      [
+        new LoggedLiftInput(Lift.Squat, WeightKg.From(squatWeightKg), [5, 5, 5]),
+        new LoggedLiftInput(Lift.Press, WeightKg.From(30), [5, 5, 5]),
+        new LoggedLiftInput(Lift.Deadlift, WeightKg.From(90), [5])
+      ]));
+    await db.SaveChangesAsync(TestContext.Current.CancellationToken);
   }
 
   [Fact]
