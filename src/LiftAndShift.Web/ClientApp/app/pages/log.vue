@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import type { Lift, Programme, WorkoutSession } from '~/types'
+import type {
+  Lift,
+  Programme,
+  WorkoutName,
+  WorkoutSession,
+  WorkoutSessionInput,
+  WorkWeightsByLift
+} from '~/types'
 
 const identity = useIdentityStore()
 const api = useApi()
@@ -14,8 +21,8 @@ const { data: programme } = await useAsyncData('programme-for-log', () =>
 )
 const { data: lifts } = await useAsyncData('lifts-for-log', () => api<Lift[]>('/Lifts'))
 
-const workout = ref<'A' | 'B' | null>(null)
-const workWeights = ref<Record<string, number | null>>({})
+const workout = ref<WorkoutName | null>(null)
+const workWeights = ref<WorkWeightsByLift>({})
 const loadingWorkWeights = ref(false)
 const submitting = ref(false)
 const submitError = ref<string | null>(null)
@@ -23,26 +30,18 @@ const result = ref<WorkoutSession | null>(null)
 
 const liftsInWorkout = computed(() => {
   if (!workout.value || !programme.value) return []
-  const names = liftsForWorkout(workout.value, programme.value.trainingPhase)
-  return names
+  return programme.value.workoutLifts[workout.value]
     .map((name) => lifts.value?.find((l) => l.name === name))
     .filter((l): l is Lift => l != null)
 })
 
-const unrampedLifts = computed(() =>
-  liftsInWorkout.value.filter((lift) => workWeights.value[lift.name] == null)
-)
-
-const readyToLog = computed(() => liftsInWorkout.value.length > 0 && unrampedLifts.value.length === 0)
-
-async function chooseWorkout(choice: 'A' | 'B') {
+async function chooseWorkout(choice: WorkoutName) {
   workout.value = choice
   result.value = null
   submitError.value = null
   loadingWorkWeights.value = true
 
-  const names = liftsForWorkout(choice, programme.value!.trainingPhase)
-  workWeights.value = await fetchWorkWeights(names)
+  workWeights.value = await fetchWorkWeights(programme.value!.workoutLifts[choice])
   loadingWorkWeights.value = false
 }
 
@@ -51,28 +50,23 @@ function changeWorkout() {
   result.value = null
 }
 
-async function submitSession(payload: {
-  performedOn: string
-  loggedLifts: { lift: string; weightKg: number; repsPerSet: number[] }[]
-}) {
+async function submitSession(payload: WorkoutSessionInput) {
   if (!workout.value) return
   submitError.value = null
   submitting.value = true
   try {
-    result.value = await api<WorkoutSession>(`/FamilyMembers/${identity.familyMemberId}/WorkoutSessions`, {
-      method: 'POST',
-      body: { workout: workout.value, ...payload }
-    })
+    result.value = await api<WorkoutSession>(
+      `/FamilyMembers/${identity.familyMemberId}/WorkoutSessions`,
+      {
+        method: 'POST',
+        body: { workout: workout.value, ...payload }
+      }
+    )
   } catch {
     submitError.value = "Couldn't log this session. Check your entries and try again."
   } finally {
     submitting.value = false
   }
-}
-
-function logAnother() {
-  workout.value = null
-  result.value = null
 }
 </script>
 
@@ -81,37 +75,26 @@ function logAnother() {
     <h1 class="font-display text-5xl font-black tracking-tight">Log a Workout</h1>
     <p class="mt-1 text-sm text-ink/60">Training as {{ identity.name }}.</p>
 
-    <WorkoutPicker v-if="!workout" :training-phase="programme?.trainingPhase ?? 1" @choose="chooseWorkout" />
+    <template v-if="programme">
+      <WorkoutPicker
+        v-if="!workout"
+        :workout-lifts="programme.workoutLifts"
+        @choose="chooseWorkout"
+      />
 
-    <template v-else-if="!result">
-      <div class="mt-8 flex items-center justify-between border-t border-chalk pt-6">
-        <span class="font-display text-3xl font-black text-iron">Workout {{ workout }}</span>
-        <button type="button" class="text-sm text-ink/60 hover:text-ink" @click="changeWorkout">Change</button>
-      </div>
-
-      <p v-if="loadingWorkWeights" class="mt-6 text-ink/60">Loading your Work Weights…</p>
-
-      <div v-else-if="unrampedLifts.length > 0" class="mt-6 border-l-4 border-l-terracotta pl-4">
-        <p class="text-ink/80">
-          You haven't Ramped
-          <strong class="font-semibold">{{ unrampedLifts.map((l) => formatLiftName(l.name)).join(', ') }}</strong>
-          yet, so this workout can't be logged.
-        </p>
-        <NuxtLink to="/work-weights" class="mt-2 inline-block text-sm font-medium text-iron hover:text-iron-dark">
-          Go Ramp it →
-        </NuxtLink>
-      </div>
-
-      <WorkoutForm
-        v-else-if="readyToLog"
+      <WorkoutEntry
+        v-else-if="!result"
+        :workout="workout"
         :lifts-in-workout="liftsInWorkout"
         :work-weights="workWeights"
+        :loading-work-weights="loadingWorkWeights"
         :submitting="submitting"
         :submit-error="submitError"
+        @change="changeWorkout"
         @submit="submitSession"
       />
-    </template>
 
-    <WorkoutResult v-else :outcomes="result.liftOutcomes" @log-another="logAnother" />
+      <WorkoutResult v-else :outcomes="result.liftOutcomes" @log-another="changeWorkout" />
+    </template>
   </div>
 </template>

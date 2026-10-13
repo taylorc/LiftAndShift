@@ -11,6 +11,9 @@ const currentSet = ref(1)
 const error = ref<string | null>(null)
 const submitting = ref(false)
 
+// Same formula as the server's Lift.RampWeightForSet. Computed locally (from /Lifts' opening weight and
+// increment) so stepping through Ramp sets needs no round trip; the server derives the actual Work
+// Weight from finalSetNumber, so this value is display-only.
 const currentSetWeight = computed(
   () => props.lift.openingWeightKg + (currentSet.value - 1) * props.lift.incrementKg
 )
