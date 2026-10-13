@@ -29,6 +29,8 @@ public class ProgrammeApiEndpointsTests(CustomWebApplicationFactory<Program> fac
 
     programme.FamilyMemberId.ShouldBe(familyMemberId);
     programme.TrainingPhase.ShouldBe(1);
+    programme.WorkoutLifts["A"].ShouldBe(["Squat", "Press", "Deadlift"]);
+    programme.WorkoutLifts["B"].ShouldBe(["Squat", "BenchPress", "Deadlift"]);
   }
 
   [Fact]
@@ -51,9 +53,12 @@ public class ProgrammeApiEndpointsTests(CustomWebApplicationFactory<Program> fac
 
     var afterFirstAdvance = await AdvancePhaseAsync(familyMemberId);
     afterFirstAdvance.TrainingPhase.ShouldBe(2);
+    afterFirstAdvance.WorkoutLifts["B"].ShouldBe(["Squat", "BenchPress", "Row"]);
 
     var afterSecondAdvance = await AdvancePhaseAsync(familyMemberId);
     afterSecondAdvance.TrainingPhase.ShouldBe(3);
+    afterSecondAdvance.WorkoutLifts["A"].ShouldBe(["Squat", "Press", "Deadlift"]);
+    afterSecondAdvance.WorkoutLifts["B"].ShouldBe(["Squat", "BenchPress", "LatPulldown"]);
   }
 
   [Fact]

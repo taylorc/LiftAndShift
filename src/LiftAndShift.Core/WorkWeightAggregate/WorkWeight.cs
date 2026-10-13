@@ -36,7 +36,7 @@ public class WorkWeight(FamilyMemberId familyMemberId, Lift lift, WeightKg weigh
   {
     if (ConsecutiveFailures >= 1)
     {
-      WeightKg = WeightKg.From(Math.Max(Lift.OpeningWeightKg, Math.Floor(WeightKg.Value * DeloadMultiplier)));
+      WeightKg = PercentageOfWorkWeight(DeloadMultiplier);
       ConsecutiveFailures = 0;
       return true;
     }
@@ -58,9 +58,13 @@ public class WorkWeight(FamilyMemberId familyMemberId, Lift lift, WeightKg weigh
     WarmUpSetAtPercentage(0.8m, 2)
   ];
 
-  private WarmUpSet WarmUpSetAtPercentage(decimal percentage, int reps)
-  {
-    var weightKg = Math.Max(Lift.OpeningWeightKg, Math.Floor(WeightKg.Value * percentage));
-    return new WarmUpSet(WeightKg.From(weightKg), reps);
-  }
+  private WarmUpSet WarmUpSetAtPercentage(decimal percentage, int reps) =>
+    new(PercentageOfWorkWeight(percentage), reps);
+
+  /// <summary>
+  /// The given fraction of the current Work Weight, rounded down to the nearest whole kg and never
+  /// below the lift's opening weight - the rounding rule both deload and the warm-up ladder share.
+  /// </summary>
+  private WeightKg PercentageOfWorkWeight(decimal percentage) =>
+    WeightKg.From(Math.Max(Lift.OpeningWeightKg, Math.Floor(WeightKg.Value * percentage)));
 }
