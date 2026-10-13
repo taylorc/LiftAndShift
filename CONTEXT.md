@@ -25,7 +25,7 @@ A one-time procedure, performed only the first time a Family Member ever does a 
 _Avoid_: Warm-up (the Ramp is a distinct, one-time concept; the ordinary warm-up calculation that precedes every other session's work sets is a separate, unrelated calculation)
 
 **Work Weight**:
-The load a Family Member lifts for a given lift's work sets in a session. Established once by that lift's Ramp, then adjusted session-to-session by the existing progression/deload rules.
+The load a Family Member lifts for a given lift's work sets in a session. Established once by that lift's Ramp, then adjusted session-to-session by the existing progression/deload rules. A Workout Session can only be logged at each lift's current Work Weight — progression and deload trust the logged weight, so a session at any other weight is rejected rather than recorded.
 _Avoid_: Working weight, target weight
 
 **Body Metric**:
